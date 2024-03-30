@@ -26,6 +26,7 @@ class StoreClientRequest extends FormRequest
             'name' => 'required|unique:clients,name|max:255',
             'currency' => 'required|in:$,€',
             'hourly_rate' => 'required|numeric',
+            'color' => 'required|max:15',
         ];
     }
 }

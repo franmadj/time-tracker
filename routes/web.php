@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
         'as' => 'client.'], function () {
         Route::get('/', [ClientController::class, 'index'])->name('index');
         Route::post('/', [ClientController::class, 'store'])->name('store');
+        Route::patch('{client}/prioroty', [ClientController::class, 'setPriorory'])->name('prioroty');
 
     });
 

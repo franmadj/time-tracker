@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Client;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
+use App\Models\Client;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,7 +19,7 @@ class ClientController extends Controller
     public function index()
     {
         return Inertia::render('Dashboard/Clients', [
-            'mustVerifyEmail' => '',
+            'clients' => Client::all(),
             'status' => '',
         ]);
     }
@@ -35,8 +38,10 @@ class ClientController extends Controller
     public function store(StoreClientRequest $request)
     {
         $validated = $request->validated();
-        $client = Client::create($validated);
-        return response(['success'=>true]);
+
+        $validated['user_id'] = Auth()->user()->id;
+        Client::create($validated);
+        return Redirect::route('client.index');
     }
 
     /**
@@ -53,6 +58,18 @@ class ClientController extends Controller
     public function edit(Client $client)
     {
         //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function setPriorory(Client $client, Request $request)
+    {
+        $validated = $request->validate([
+            'prioroty' => 'required|in:low,middle,high',
+        ]);
+        $client->update($validated);
+        return response(['success' => true]);
     }
 
     /**

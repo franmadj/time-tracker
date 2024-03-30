@@ -13,15 +13,18 @@ return new class extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('name');
             $table->unsignedSmallInteger('order')->default(0);
             $table->enum('prioroty', ['high', 'middle', 'low'])->default('low');
-            $table->enum('currnecy', ['$', '€'])->default('$');
+            $table->enum('currency', ['$', '€'])->default('$');
             $table->unsignedSmallInteger('hourly_rate')->default(100);
             $table->string('color')->default('#ccc');
             $table->dateTime('period_from')->nullable();
             $table->unsignedSmallInteger('active_projects')->nullable();
             $table->unsignedSmallInteger('earnings')->nullable();
+            $table->unsignedInteger('total_time')->nullable();
             $table->timestamps();
         });
     }
