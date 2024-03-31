@@ -32,8 +32,11 @@ Route::middleware('auth')->group(function () {
         'prefix' => 'client',
         'as' => 'client.'], function () {
         Route::get('/', [ClientController::class, 'index'])->name('index');
+        Route::get('{client}', [ClientController::class, 'show'])->name('show');
         Route::post('/', [ClientController::class, 'store'])->name('store');
+        Route::put('{client}', [ClientController::class, 'update'])->name('update');
         Route::patch('{client}/prioroty', [ClientController::class, 'setPriorory'])->name('prioroty');
+        Route::delete('{client}', [ClientController::class, 'destroy'])->name('destroy');
 
     });
 

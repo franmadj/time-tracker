@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $table->string('name');
+            $table->text('notes');
             $table->unsignedSmallInteger('order')->default(0);
             $table->enum('prioroty', ['high', 'middle', 'low'])->default('low');
             $table->unsignedSmallInteger('hourly_rate')->default(100);

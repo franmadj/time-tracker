@@ -11,7 +11,7 @@ class UpdateClientRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth()->check();
     }
 
     /**
@@ -22,7 +22,10 @@ class UpdateClientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|unique:clients,name,'.$this->client->id.'|max:255',
+            'currency' => 'required|in:$,€',
+            'hourly_rate' => 'required|numeric',
+            'color' => 'required|max:15',
         ];
     }
 }

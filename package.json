@@ -18,6 +18,7 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "vue-accessible-color-picker": "^5.0.1"
+        "vue-accessible-color-picker": "^5.0.1",
+        "vuedraggable": "^2.24.3"
     }
 }
