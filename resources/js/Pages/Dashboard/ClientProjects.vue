@@ -11,7 +11,13 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex flex-wrap justify-between gap-5">
 
-                    <ProjectCard v-for="(project, index) of projects" :key="index" :project="project"/>
+                    <div v-for="(project, index) of projects" :key="index" :draggable="true"
+                        @dragstart="handleDragStart(index)" @dragover="handleDragOver" @drop="handleDrop(index)"
+                        class="p-4 pl-9 pt-9 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
+
+                        <ProjectCard :project="project" />
+                    </div>
+
 
 
 
@@ -31,22 +37,20 @@
                                 Create new Project
                             </h2>
                             <div class="mt-6">
-
                                 <InputLabel for="name" value="name" class="sr-only" />
                                 <TextInput id="name" ref="projectNameInput" v-model="form.name" type="text"
                                     class="mt-1 block w-3/4" placeholder="Project Name" @keyup.enter="storeProject" />
                                 <InputError :message="form.errors.name" class="mt-2" />
                             </div>
+
                             <div class="mt-6">
-                                <InputLabel for="currency" value="currency" class="sr-only" />
-                                <select
-                                    class="mt-1 block w-3/4 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                    v-model="form.currency">
-                                    <option value="€">€</option>
-                                    <option value="$">$</option>
-                                </select>
-                                <InputError :message="form.errors.currency" class="mt-2" />
+                                <InputLabel for="notes" value="notes" class="sr-only" />
+                                <textarea id="notes" ref="projectNameInput" v-model="form.notes" type="text"
+                                    class="mt-1 block w-3/4 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" placeholder="Project Name" @keyup.enter="storeProject"></textarea>
+                                
+                                <InputError :message="form.errors.notes" class="mt-2" />
                             </div>
+                            
                             <div class="mt-6">
                                 <InputLabel for="hourly_rate" value="hourly_rate" class="sr-only" />
                                 <div class="relative w-3/4">
@@ -57,11 +61,7 @@
                                 <InputError :message="form.errors.hourly_rate" class="mt-2" />
                             </div>
 
-                            <div class="mt-6">
-                                <InputLabel for="color" value="color" class="sr-only" />
-                                <ColorPicker id="color" :visible-formats="['hex']" @color-change="updateColor" />
-                                <InputError :message="form.errors.color" class="mt-2" />
-                            </div>
+                            
 
 
 
@@ -96,17 +96,56 @@ import { nextTick, ref, defineProps } from 'vue';
 let creatingNewProject = ref(false);
 const projectNameInput = ref(null);
 
-defineProps({
+const props = defineProps({
     projects: {
         type: Array,
     },
 });
 
+const draggedItem = ref(null);
+
+const handleDragStart = (index) => {
+    draggedItem.value = index;
+}
+
+const handleDragOver = (event) => {
+    event.preventDefault();
+}
+
+const handleDrop = (index) => {
+    const droppedItem = props.clients.value.splice(draggedItem.value, 1)[0];
+    props.clients.value.splice(index, 0, droppedItem);
+    draggedItem.value = null;
+
+    let clientsOrder = [];
+    let order = 0;
+
+    props.clients.value.forEach(element => {
+        clientsOrder.push({ 'id': element.id, 'order': order });
+        order++;
+    });
+
+    console.log(clientsOrder)
+
+    axios.patch(route('project.ordering'), { clientsOrder })
+        .then(res => {
+            if (res.data.success) {
+                
+
+            } else {
+                //toaster.error(`Error`);
+            }
+        })
+        .catch(function (error) {
+            //toaster.error(error);
+        });
+}
+
 
 const form = useForm({
     name: '',
     hourly_rate: '25',
-    currency: '$',
+    notes: '',
 });
 
 const newProject = () => {

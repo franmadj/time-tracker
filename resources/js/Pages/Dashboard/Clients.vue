@@ -11,7 +11,12 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex flex-wrap justify-between gap-5">
 
-                    <ClientCard v-for="(client, index) of clients" :key="index" :client="client"/>
+                    <div v-for="(client, index) of props.clients" :key="index" :draggable="true" @click="viewClient(client.id)"
+                        @dragstart="handleDragStart(index)" @dragover="handleDragOver" @drop="handleDrop(index)"
+                        class="p-4 pl-9 pt-9 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
+
+                        <ClientCard :client="client" />
+                    </div>
 
 
 
@@ -83,7 +88,7 @@
 
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import SaveButton from '@/Components/SaveButton.vue';
 import InputError from '@/Components/InputError.vue';
@@ -92,17 +97,66 @@ import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { ColorPicker } from 'vue-accessible-color-picker'
 import ClientCard from './Partials/ClientCard.vue';
-import { nextTick, ref, defineProps } from 'vue';
+import { nextTick, ref, defineProps, onMounted } from 'vue';
 
 let creatingNewClient = ref(false);
 const clientNameInput = ref(null);
-let color='#ccc';
+let color = '#ccc';
 
-defineProps({
+const props = defineProps({
     clients: {
         type: Array,
     },
 });
+
+
+const draggedItem = ref(null);
+
+onMounted(() => {
+
+});
+
+const viewClient=(id)=>{ 
+    console.log(id);
+    router.get(route('client.show', id))
+}
+
+const handleDragStart = (index) => {
+    draggedItem.value = index;
+}
+
+const handleDragOver = (event) => {
+    event.preventDefault();
+}
+
+const handleDrop = (index) => {
+    const droppedItem = props.clients.value.splice(draggedItem.value, 1)[0];
+    props.clients.value.splice(index, 0, droppedItem);
+    draggedItem.value = null;
+
+    let clientsOrder = [];
+    let order = 0;
+
+    props.clients.value.forEach(element => {
+        clientsOrder.push({ 'id': element.id, 'order': order });
+        order++;
+    });
+
+    console.log(clientsOrder)
+
+    axios.patch(route('client.ordering'), { clientsOrder })
+        .then(res => {
+            if (res.data.success) {
+                
+
+            } else {
+                //toaster.error(`Error`);
+            }
+        })
+        .catch(function (error) {
+            //toaster.error(error);
+        });
+}
 
 
 const form = useForm({

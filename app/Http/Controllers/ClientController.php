@@ -20,8 +20,7 @@ class ClientController extends Controller
     public function index()
     {
         return Inertia::render('Dashboard/Clients', [
-            'clients' => Client::all(),
-            'status' => '',
+            'clients' => Client::orderBy('order', 'ASC')->get()
         ]);
     }
 
@@ -39,7 +38,6 @@ class ClientController extends Controller
     public function store(StoreClientRequest $request)
     {
         $validated = $request->validated();
-
         $validated['user_id'] = Auth()->user()->id;
         Client::create($validated);
         return Redirect::route('client.index');
@@ -51,7 +49,7 @@ class ClientController extends Controller
     public function show(Client $client)
     {
         return Inertia::render('Dashboard/ClientProjects', [
-            'projects' => '$client->projects()'
+            'projects' => $client->projects()->orderBy('order', 'DESC')->get(),
         ]);
     }
 
@@ -72,6 +70,19 @@ class ClientController extends Controller
             'prioroty' => 'required|in:low,middle,high',
         ]);
         $client->update($validated);
+        return response(['success' => true]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function setOrder(Request $request)
+    {
+        foreach ($request->clientsOrder as $clientOrder) {
+            if ($client = Client::find($clientOrder['id'])) {
+                $client->update(['order' => $clientOrder['order']]);
+            }
+        }
         return response(['success' => true]);
     }
 
