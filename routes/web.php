@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ProjectController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -32,13 +33,24 @@ Route::middleware('auth')->group(function () {
         'prefix' => 'client',
         'as' => 'client.'], function () {
         Route::get('/', [ClientController::class, 'index'])->name('index');
-        Route::get('{client}', [ClientController::class, 'show'])->name('show');
+        Route::get('{client:slug}', [ClientController::class, 'show'])->name('show');
         Route::post('/', [ClientController::class, 'store'])->name('store');
         Route::put('{client}', [ClientController::class, 'update'])->name('update');
         Route::patch('{client}/prioroty', [ClientController::class, 'setPriorory'])->name('prioroty');
         Route::patch('/ordering', [ClientController::class, 'setOrder'])->name('ordering');
         Route::delete('{client}', [ClientController::class, 'destroy'])->name('destroy');
+    });
 
+    Route::group([
+        'prefix' => 'project',
+        'as' => 'project.'], function () {
+        Route::get('/', [ClientController::class, 'index'])->name('index');
+        Route::get('{client:slug}', [ClientController::class, 'show'])->name('show');
+        Route::post('/', [ProjectController::class, 'store'])->name('store');
+        Route::put('{client}', [ClientController::class, 'update'])->name('update');
+        Route::patch('{client}/prioroty', [ClientController::class, 'setPriorory'])->name('prioroty');
+        Route::patch('/ordering', [ClientController::class, 'setOrder'])->name('ordering');
+        Route::delete('{client}', [ClientController::class, 'destroy'])->name('destroy');
     });
 
     

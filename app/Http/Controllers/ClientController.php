@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,7 +22,7 @@ class ClientController extends Controller
     public function index()
     {
         return Inertia::render('Dashboard/Clients', [
-            'clients' => Client::orderBy('order', 'ASC')->get()
+            'clients' => Client::orderBy('order', 'ASC')->get(),
         ]);
     }
 
@@ -35,10 +37,11 @@ class ClientController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreClientRequest $request)
+    public function store(StoreClientRequest $request): RedirectResponse
     {
         $validated = $request->validated();
         $validated['user_id'] = Auth()->user()->id;
+        $validated['slug'] = Str::slug($validated['name'], "-");
         Client::create($validated);
         return Redirect::route('client.index');
     }
@@ -50,6 +53,7 @@ class ClientController extends Controller
     {
         return Inertia::render('Dashboard/ClientProjects', [
             'projects' => $client->projects()->orderBy('order', 'DESC')->get(),
+            'client' => $client,
         ]);
     }
 
@@ -64,19 +68,19 @@ class ClientController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function setPriorory(Client $client, Request $request)
+    public function setPriorory(Client $client, Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'prioroty' => 'required|in:low,middle,high',
         ]);
         $client->update($validated);
-        return response(['success' => true]);
+        return Redirect::route('client.index');
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function setOrder(Request $request)
+    public function setOrder(Request $request) : ResponseFactory
     {
         foreach ($request->clientsOrder as $clientOrder) {
             if ($client = Client::find($clientOrder['id'])) {
@@ -92,6 +96,7 @@ class ClientController extends Controller
     public function update(UpdateClientRequest $request, Client $client): RedirectResponse
     {
         $validated = $request->validated();
+        $validated['slug'] = Str::slug($validated['name'], "-");
         $client->update($validated);
         return Redirect::to('/client');
     }

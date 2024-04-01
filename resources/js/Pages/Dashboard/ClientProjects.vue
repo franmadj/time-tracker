@@ -54,17 +54,12 @@
                             <div class="mt-6">
                                 <InputLabel for="hourly_rate" value="hourly_rate" class="sr-only" />
                                 <div class="relative w-3/4">
-                                    <span class="absolute right-2 top-[9px]">{{ form.currency }} / Hour</span>
+                                    <span class="absolute right-2 top-[9px]">{{ props.client.currency }} / Hour</span>
                                     <TextInput id="hourly_rate" v-model="form.hourly_rate" type="text"
                                         class="mt-1 block w-3/4" placeholder="Hourly Rate" @keyup.enter="storeProject" />
                                 </div>
                                 <InputError :message="form.errors.hourly_rate" class="mt-2" />
                             </div>
-
-                            
-
-
-
                             <div class="mt-6 flex justify-end">
                                 <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
                                 <SaveButton class="ms-3" :class="{ 'opacity-25': form.processing }"
@@ -91,7 +86,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import ProjectCard from './Partials/ProjectCard.vue';
-import { nextTick, ref, defineProps } from 'vue';
+import { nextTick, ref, defineProps, onMounted } from 'vue';
 
 let creatingNewProject = ref(false);
 const projectNameInput = ref(null);
@@ -100,6 +95,13 @@ const props = defineProps({
     projects: {
         type: Array,
     },
+    client: {
+        type: Object,
+    },
+});
+
+onMounted(()=>{
+    console.log('props',props);
 });
 
 const draggedItem = ref(null);
@@ -113,21 +115,21 @@ const handleDragOver = (event) => {
 }
 
 const handleDrop = (index) => {
-    const droppedItem = props.clients.value.splice(draggedItem.value, 1)[0];
-    props.clients.value.splice(index, 0, droppedItem);
+    const droppedItem = props.projects.value.splice(draggedItem.value, 1)[0];
+    props.projects.value.splice(index, 0, droppedItem);
     draggedItem.value = null;
 
-    let clientsOrder = [];
+    let projectsOrder = [];
     let order = 0;
 
-    props.clients.value.forEach(element => {
-        clientsOrder.push({ 'id': element.id, 'order': order });
+    props.projects.value.forEach(element => {
+        projectsOrder.push({ 'id': element.id, 'order': order });
         order++;
     });
 
-    console.log(clientsOrder)
+    console.log(projectsOrder)
 
-    axios.patch(route('project.ordering'), { clientsOrder })
+    axios.patch(route('project.ordering'), { projectsOrder })
         .then(res => {
             if (res.data.success) {
                 
@@ -143,8 +145,10 @@ const handleDrop = (index) => {
 
 
 const form = useForm({
+    client_id: props.client.id,
+    client_slug: props.client.slug,
     name: '',
-    hourly_rate: '25',
+    hourly_rate: String(props.client.hourly_rate),
     notes: '',
 });
 

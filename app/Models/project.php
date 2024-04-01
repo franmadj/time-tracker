@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class project extends Model
+class Project extends Model
 {
     use HasFactory;
 
@@ -16,9 +16,9 @@ class project extends Model
         return $this->belongsTo(Client::class);
     }
 
-    function times(){
+    /*function times(){
         return $this->hasMany(timeTable::class);
-    }
+    }*/
 
     protected function hourlyRate(): Attribute
     {

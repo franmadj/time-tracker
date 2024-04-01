@@ -1,7 +1,7 @@
 <template>
 
-    <div class="p-4 pl-9 pt-9 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer"
-        @click="viewClient">
+    <div
+        class="p-4 pl-9 pt-9 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
 
         <svg @click="editModal" class="absolute right-8 top-3 w-4 h-4 cursor-pointer fill-white"
             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -13,13 +13,12 @@
             <path
                 d="M170.5 51.6L151.5 80h145l-19-28.4c-1.5-2.2-4-3.6-6.7-3.6H177.1c-2.7 0-5.2 1.3-6.7 3.6zm147-26.6L354.2 80H368h48 8c13.3 0 24 10.7 24 24s-10.7 24-24 24h-8V432c0 44.2-35.8 80-80 80H112c-44.2 0-80-35.8-80-80V128H24c-13.3 0-24-10.7-24-24S10.7 80 24 80h8H80 93.8l36.7-55.1C140.9 9.4 158.4 0 177.1 0h93.7c18.7 0 36.2 9.4 46.6 24.9zM80 128V432c0 17.7 14.3 32 32 32H336c17.7 0 32-14.3 32-32V128H80zm80 64V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16z" />
         </svg>
-        <div class="w-20 h-20 border border-black absolute -left-10 -top-10 rotate-45"
-            :style="'background:' + client.color"></div>
-        <h2 class="text-white font-bold mb-2">{{ client.name }}</h2>
-        <p v-show="client.period_from" class="mb-1">Prdiod from: {{ client.period_from }}</p>
-        <p v-show="client.active_projects" class="mb-1">Active Projects: {{ client.active_projects }}</p>
-        <p v-show="client.total_time" class="mb-1">Total time: 10:25</p>
-        <p v-show="client.earnings" class="mb-1">Earnings: {{ client.currency }}{{ client.earnings }}</p>
+
+        <h2 class="text-white font-bold mb-2">{{ project.name }}</h2>
+        <p v-show="project.period_from" class="mb-1">Prdiod from: {{ project.period_from }}</p>
+        <p v-show="project.active_projects" class="mb-1">Active Projects: {{ project.active_projects }}</p>
+        <p v-show="project.total_time" class="mb-1">Total time: 10:25</p>
+        <p v-show="project.earnings" class="mb-1">Earnings: {{ project.currency }}{{ project.earnings }}</p>
         <p class="mb-1">Prioroty:
             <span @click="setPrioroty('high')" class="cursor-pointer"
                 :class="{ 'text-red-500': 'high' == prioroty }">High</span> /
@@ -32,47 +31,37 @@
     <Modal :show="confirmingEdition" @close="closeEditModal">
         <div class="p-6">
             <h2 class="text-lg font-medium text-gray-900">
-                Edit client
+                Edit Project
             </h2>
             <div class="mt-6">
-
                 <InputLabel for="name" value="name" class="sr-only" />
-                <TextInput id="name" ref="editNameInput" v-model="form.name" type="text" class="mt-1 block w-3/4"
-                    placeholder="Client Name" @keyup.enter="updateClient" />
+                <TextInput id="name" ref="projectNameInput" v-model="form.name" type="text" class="mt-1 block w-3/4"
+                    placeholder="Project Name" @keyup.enter="storeProject" />
                 <InputError :message="form.errors.name" class="mt-2" />
             </div>
+
             <div class="mt-6">
-                <InputLabel for="currency" value="currency" class="sr-only" />
-                <select
+                <InputLabel for="notes" value="notes" class="sr-only" />
+                <textarea id="notes" ref="projectNameInput" v-model="form.notes" type="text"
                     class="mt-1 block w-3/4 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                    v-model="form.currency">
-                    <option value="€">€</option>
-                    <option value="$">$</option>
-                </select>
-                <InputError :message="form.errors.currency" class="mt-2" />
+                    placeholder="Project Name" @keyup.enter="storeProject"></textarea>
+
+                <InputError :message="form.errors.notes" class="mt-2" />
             </div>
+
             <div class="mt-6">
                 <InputLabel for="hourly_rate" value="hourly_rate" class="sr-only" />
                 <div class="relative w-3/4">
-                    <span class="absolute right-2 top-[9px]">{{ form.currency }} / Hour</span>
+                    <span class="absolute right-2 top-[9px]">{{ props.client.currency }} / Hour</span>
                     <TextInput id="hourly_rate" v-model="form.hourly_rate" type="text" class="mt-1 block w-3/4"
-                        placeholder="Hourly Rate" @keyup.enter="updateClient" />
+                        placeholder="Hourly Rate" @keyup.enter="storeProject" />
                 </div>
                 <InputError :message="form.errors.hourly_rate" class="mt-2" />
             </div>
-
-            <div class="mt-6">
-                <InputLabel for="color" value="color" class="sr-only" />
-                <ColorPicker id="color" :visible-formats="['hex']" @color-change="updateColor" :color="color" />
-                <InputError :message="form.errors.color" class="mt-2" />
-            </div>
-
-
-
             <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeEditModal"> Cancel </SecondaryButton>
+                <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
                 <SaveButton class="ms-3" :class="{ 'opacity-25': form.processing }" :disabled="form.processing"
-                    @click="updateClient">
+                    @click="storeProject">
                     Save
                 </SaveButton>
             </div>
@@ -155,7 +144,7 @@ onMounted(() => {
     color.value = props.client.color;
 })
 
-const viewClient=()=>{
+const viewClient = () => {
     router.get(route('client.show', props.client.id))
 }
 

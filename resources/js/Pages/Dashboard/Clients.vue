@@ -11,7 +11,7 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex flex-wrap justify-between gap-5">
 
-                    <div v-for="(client, index) of props.clients" :key="index" :draggable="true" @click="viewClient(client.id)"
+                    <div v-for="(client, index) of props.clients" :key="index" :draggable="true" @click="viewClient(client.slug)"
                         @dragstart="handleDragStart(index)" @dragover="handleDragOver" @drop="handleDrop(index)"
                         class="p-4 pl-9 pt-9 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
 

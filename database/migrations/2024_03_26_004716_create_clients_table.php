@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('name');
+            $table->string('slug');
             $table->unsignedSmallInteger('order')->default(0);
             $table->enum('prioroty', ['high', 'middle', 'low'])->default('low');
             $table->enum('currency', ['$', '€'])->default('$');
