@@ -47,10 +47,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [ClientController::class, 'index'])->name('index');
         Route::get('{client:slug}', [ClientController::class, 'show'])->name('show');
         Route::post('/', [ProjectController::class, 'store'])->name('store');
-        Route::put('{client}', [ClientController::class, 'update'])->name('update');
-        Route::patch('{client}/prioroty', [ClientController::class, 'setPriorory'])->name('prioroty');
-        Route::patch('/ordering', [ClientController::class, 'setOrder'])->name('ordering');
-        Route::delete('{client}', [ClientController::class, 'destroy'])->name('destroy');
+        Route::put('{project}', [ProjectController::class, 'update'])->name('update');
+        Route::patch('{project}/prioroty', [ProjectController::class, 'setPriorory'])->name('prioroty');
+        Route::patch('/ordering', [ProjectController::class, 'setOrder'])->name('ordering');
+        Route::delete('{project}', [ProjectController::class, 'destroy'])->name('destroy');
+        Route::post('start-time/{project}', [ProjectController::class, 'startTime'])->name('startTime');
     });
 
     

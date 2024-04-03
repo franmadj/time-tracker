@@ -13,17 +13,11 @@
 
                     <div v-for="(project, index) of projects" :key="index" :draggable="true"
                         @dragstart="handleDragStart(index)" @dragover="handleDragOver" @drop="handleDrop(index)"
-                        class="p-4 pl-9 pt-9 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
-
-                        <ProjectCard :project="project" />
+                        class="p-4 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
+                        <ProjectCard :project="project" :client="client" />
                     </div>
 
-
-
-
-
-                    <div
-                        class="p-4 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded flex justify-center items-center shadow-2xl">
+                    <div class="p-4 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded flex justify-center items-center shadow-2xl">
                         <svg class="cursor-pointer w-20 h-20 opacity-50" @click="newProject"
                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                             <path
@@ -69,7 +63,6 @@
                             </div>
                         </div>
                     </Modal>
-
                 </div>
             </div>
         </div>
@@ -115,14 +108,13 @@ const handleDragOver = (event) => {
 }
 
 const handleDrop = (index) => {
-    const droppedItem = props.projects.value.splice(draggedItem.value, 1)[0];
-    props.projects.value.splice(index, 0, droppedItem);
+    console.log(props.projects);
+    const droppedItem = props.projects.splice(draggedItem.value, 1)[0];
+    props.projects.splice(index, 0, droppedItem);
     draggedItem.value = null;
-
     let projectsOrder = [];
     let order = 0;
-
-    props.projects.value.forEach(element => {
+    props.projects.forEach(element => {
         projectsOrder.push({ 'id': element.id, 'order': order });
         order++;
     });

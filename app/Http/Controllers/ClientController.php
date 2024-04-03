@@ -8,7 +8,6 @@ use App\Models\Client;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -52,7 +51,7 @@ class ClientController extends Controller
     public function show(Client $client)
     {
         return Inertia::render('Dashboard/ClientProjects', [
-            'projects' => $client->projects()->orderBy('order', 'DESC')->get(),
+            'projects' => $client->projects()->orderBy('order', 'ASC')->get(),
             'client' => $client,
         ]);
     }

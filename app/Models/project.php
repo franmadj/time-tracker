@@ -16,9 +16,9 @@ class Project extends Model
         return $this->belongsTo(Client::class);
     }
 
-    /*function times(){
+    function times(){
         return $this->hasMany(timeTable::class);
-    }*/
+    }
 
     protected function hourlyRate(): Attribute
     {

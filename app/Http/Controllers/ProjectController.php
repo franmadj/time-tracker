@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
 class ProjectController extends Controller
@@ -33,7 +35,7 @@ class ProjectController extends Controller
     {
         $validated = $request->validated();
         Project::create($validated);
-        return Redirect::route('client.show', $request->slug);
+        return Redirect::route('client.show', $request->client_slug);
     }
 
     /**
@@ -44,7 +46,7 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'prioroty' => 'required|in:low,middle,high',
         ]);
-        $client->update($validated);
+        $project->update($validated);
         return response(['success' => true]);
     }
 
@@ -53,13 +55,26 @@ class ProjectController extends Controller
      */
     public function setOrder(Request $request)
     {
-        foreach ($request->clientsOrder as $clientOrder) {
-            if ($client = Client::find($clientOrder['id'])) {
-                $client->update(['order' => $clientOrder['order']]);
+        foreach ($request->projectsOrder as $projectOrder) {
+            if ($project = Project::find($projectOrder['id'])) {
+                $project->update(['order' => $projectOrder['order']]);
             }
         }
         return response(['success' => true]);
     }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function startTime(Request $request, Project $project)
+    {
+        $date = new Carbon($request->startedAt);
+        //dd($date->toDateTimeString());
+        $timeTable = $project->times()->create(['started_at' => $date->toDateTimeString()]);
+        return response(['success' => true, 'id' => $timeTable->id]);
+    }
+
+    
 
     /**
      * Display the specified resource.
@@ -83,9 +98,8 @@ class ProjectController extends Controller
     public function update(UpdateProjectRequest $request, Project $project)
     {
         $validated = $request->validated();
-        $validated['slug'] = Str::slug($validated['name'], "-");
-        $client->update($validated);
-        return Redirect::to('/client');
+        $project->update($validated);
+        return Redirect::route('client.show', $request->client_slug);
     }
 
     /**
@@ -93,7 +107,7 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        $client->delete();
-        return Redirect::to('/client');
+        $project->delete();
+        return Redirect::route('client.show', $project->client->slug);
     }
 }

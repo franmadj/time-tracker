@@ -130,14 +130,14 @@ const handleDragOver = (event) => {
 }
 
 const handleDrop = (index) => {
-    const droppedItem = props.clients.value.splice(draggedItem.value, 1)[0];
-    props.clients.value.splice(index, 0, droppedItem);
+    const droppedItem = props.clients.splice(draggedItem.value, 1)[0];
+    props.clients.splice(index, 0, droppedItem);
     draggedItem.value = null;
 
     let clientsOrder = [];
     let order = 0;
 
-    props.clients.value.forEach(element => {
+    props.clients.forEach(element => {
         clientsOrder.push({ 'id': element.id, 'order': order });
         order++;
     });
