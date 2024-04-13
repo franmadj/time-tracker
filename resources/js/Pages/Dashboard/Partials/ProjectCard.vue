@@ -12,6 +12,11 @@
             <path
                 d="M170.5 51.6L151.5 80h145l-19-28.4c-1.5-2.2-4-3.6-6.7-3.6H177.1c-2.7 0-5.2 1.3-6.7 3.6zm147-26.6L354.2 80H368h48 8c13.3 0 24 10.7 24 24s-10.7 24-24 24h-8V432c0 44.2-35.8 80-80 80H112c-44.2 0-80-35.8-80-80V128H24c-13.3 0-24-10.7-24-24S10.7 80 24 80h8H80 93.8l36.7-55.1C140.9 9.4 158.4 0 177.1 0h93.7c18.7 0 36.2 9.4 46.6 24.9zM80 128V432c0 17.7 14.3 32 32 32H336c17.7 0 32-14.3 32-32V128H80zm80 64V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16z" />
         </svg>
+        <svg @click="viewModal" class="absolute right-14 top-3 w-4 h-4 cursor-pointer fill-white"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+            <path
+                d="M288 80c-65.2 0-118.8 29.6-159.9 67.7C89.6 183.5 63 226 49.4 256c13.6 30 40.2 72.5 78.6 108.3C169.2 402.4 222.8 432 288 432s118.8-29.6 159.9-67.7C486.4 328.5 513 286 526.6 256c-13.6-30-40.2-72.5-78.6-108.3C406.8 109.6 353.2 80 288 80zM95.4 112.6C142.5 68.8 207.2 32 288 32s145.5 36.8 192.6 80.6c46.8 43.5 78.1 95.4 93 131.1c3.3 7.9 3.3 16.7 0 24.6c-14.9 35.7-46.2 87.7-93 131.1C433.5 443.2 368.8 480 288 480s-145.5-36.8-192.6-80.6C48.6 356 17.3 304 2.5 268.3c-3.3-7.9-3.3-16.7 0-24.6C17.3 208 48.6 156 95.4 112.6zM288 336c44.2 0 80-35.8 80-80s-35.8-80-80-80c-.7 0-1.3 0-2 0c1.3 5.1 2 10.5 2 16c0 35.3-28.7 64-64 64c-5.5 0-10.9-.7-16-2c0 .7 0 1.3 0 2c0 44.2 35.8 80 80 80zm0-208a128 128 0 1 1 0 256 128 128 0 1 1 0-256z" />
+        </svg>
         <h2 class="text-white font-bold mb-2 m-w-[288px]">{{ project.name }}</h2>
         <p class="mb-1">Prioroty:
             <span @click="setPrioroty('high')" class="cursor-pointer"
@@ -26,7 +31,7 @@
             <div class="f w-[224px]">
                 <p v-show="project.period_from" class="mb-1">Prdiod from: {{ project.period_from }}</p>
                 <p v-show="project.ended_at" class="mb-1">Ended At: {{ project.ended_at }}</p>
-                <p v-show="project.total_time" class="mb-1">Total time: 10:25</p>
+                <p v-show="totalTimeDisplay" class="mb-1">Total time: {{ totalTimeDisplay }}</p>
                 <p v-show="project.earnings" class="mb-1 underline cursor-pointer">Time Table</p>
             </div>
             <div class="w-[102px]">
@@ -116,6 +121,55 @@
             </div>
         </div>
     </Modal>
+
+    <Modal :show="confirmingView" @close="closeViewModal">
+        <div class="p-6">
+            <h2 class="text-lg font-medium text-gray-900">
+                Project Details
+            </h2>
+            <p class="mt-1 text-sm text-gray-600 font-bold">
+                Notes:
+            </p>
+            <p class="mt-1 text-sm text-gray-600">
+                {{ props.project.notes }}
+            </p>
+            <p class="mt-1 text-sm text-gray-600 font-bold">
+                Time Table:
+            </p>
+            <p class="mt-1 text-sm text-gray-600">
+            <table class="w-full mx-auto">
+                <tbody>
+                    <tr>
+                        <th class="text-center mb-2">StartTime</th>
+                        <th class="text-center mb-2">EndTime</th>
+                        <th class="text-center mb-2">Total Time</th>
+                    </tr>
+                    <tr v-for="(time, index) in project.times" :key="index">
+
+                        <td class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">{{
+                            formatDateTime(time.started_at) }}</td>
+                        <td class="text-center py-1 text-lg font-bold bg-red-200 border border-b-white">{{
+                            formatDateTime(time.ended_at) }}</td>
+                        <td
+                            class="py-1 text-lg font-bold flex items-center justify-center  bg-green-200 border border-b-white">
+                            {{ getTotalDiffTime(time.started_at, time.ended_at) }} <svg @click="deleteTime(time.id, index)"
+                                class="w-3 h-3 cursor-pointer fill-black ml-2" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 448 512">
+                                <path
+                                    d="M170.5 51.6L151.5 80h145l-19-28.4c-1.5-2.2-4-3.6-6.7-3.6H177.1c-2.7 0-5.2 1.3-6.7 3.6zm147-26.6L354.2 80H368h48 8c13.3 0 24 10.7 24 24s-10.7 24-24 24h-8V432c0 44.2-35.8 80-80 80H112c-44.2 0-80-35.8-80-80V128H24c-13.3 0-24-10.7-24-24S10.7 80 24 80h8H80 93.8l36.7-55.1C140.9 9.4 158.4 0 177.1 0h93.7c18.7 0 36.2 9.4 46.6 24.9zM80 128V432c0 17.7 14.3 32 32 32H336c17.7 0 32-14.3 32-32V128H80zm80 64V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16z">
+                                </path>
+                            </svg>
+                        </td>
+                    </tr>
+
+
+                </tbody>
+            </table>
+
+            </p>
+
+        </div>
+    </Modal>
 </template>
 
 <script setup>
@@ -127,9 +181,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { nextTick, ref, defineProps } from 'vue';
-
-
+import { nextTick, ref, defineProps, onMounted, computed } from 'vue';
 
 
 const props = defineProps({
@@ -147,7 +199,55 @@ const ended = ref(false);
 const timing = ref('00:00:00');
 let runTimeInterval = 1;
 let currentTimeTableId = 0;
-//const startedTime = 0;
+const totalTimeDisplay = ref(false);
+
+
+onMounted(() => {
+    console.log('project', props.project);
+
+    if (props.project.time_started) {
+        currentTimeTableId = props.project.time_id;
+        const startedTime = new Date(props.project.time_started);
+        startClock(startedTime);
+        played.value = true;
+    }
+    if (props.project.total_time) {
+        totalTimeDisplay.value = makeTimeClock(props.project.total_time);
+    }
+});
+
+const formatDateTime = (dateTime) => {
+    return new Date(dateTime).toLocaleString('it-IT', { timeZone: 'UTC' });
+}
+
+const getTotalDiffTime = (startDateStr, endDateStr) => {
+    const startDate = new Date(startDateStr);
+    const endDate = new Date(endDateStr);
+    const diff = endDate.getTime() - startDate.getTime();
+    const totalSeconds = Math.round(diff / (1000));
+    return makeTimeClock(totalSeconds);
+}
+
+const deleteTime=(id, index)=>{
+
+    console.log(id);
+    axios.delete(route('timeTable.destroy', id))
+        .then(res => {
+            console.log(res);
+            if (res.data.success) {
+                props.project.times.splice(index,1)
+            }
+
+        })
+        .catch(function (error) {
+            //toaster.error(error);
+        });
+
+}
+
+
+
+
 const playTime = () => {
     timing.value = '00:00:00';
     played.value = true;
@@ -156,20 +256,7 @@ const playTime = () => {
         .then(res => {
             if (res.data.success && res.data.id > 0) {
                 currentTimeTableId = res.data.id;
-                runTimeInterval = setInterval(() => {
-                    const now = new Date();
-                    const diff = now.getTime() - startedTime.getTime();
-                    const totalSeconds = Math.round(diff / (1000));
-                    let clockHours = Math.floor(totalSeconds / (60 * 60));
-                    let clockMinutes = Math.floor((totalSeconds % (60 * 60)) / (60));
-                    let clockSeconds = Math.floor((totalSeconds % (60)) / 1);
-                    clockHours = (clockHours < 10 ? "0" : "") + clockHours;
-                    clockMinutes = (clockMinutes < 10 ? "0" : "") + clockMinutes;
-                    clockSeconds = (clockSeconds < 10 ? "0" : "") + clockSeconds;
-                    timing.value = (clockHours + ':' + clockMinutes + ':' + clockSeconds)
-                }, 1000);
-
-
+                startClock(startedTime);
             } else {
                 //toaster.error(`Error`);
             }
@@ -177,17 +264,40 @@ const playTime = () => {
         .catch(function (error) {
             //toaster.error(error);
         });
+}
 
+const startClock = (startedTime) => {
+    runTimeInterval = setInterval(() => {
+        const now = new Date();
+        const diff = now.getTime() - startedTime.getTime();
+        const totalSeconds = Math.round(diff / (1000));
+        timing.value = makeTimeClock(totalSeconds);
+    }, 1000);
+
+}
+
+const makeTimeClock = (totalSeconds) => {
+    let clockHours = Math.floor(totalSeconds / (60 * 60));
+    let clockMinutes = Math.floor((totalSeconds % (60 * 60)) / (60));
+    let clockSeconds = Math.floor((totalSeconds % (60)) / 1);
+    clockHours = (clockHours < 10 ? "0" : "") + clockHours;
+    clockMinutes = (clockMinutes < 10 ? "0" : "") + clockMinutes;
+    clockSeconds = (clockSeconds < 10 ? "0" : "") + clockSeconds;
+    return (clockHours + ':' + clockMinutes + ':' + clockSeconds);
 
 }
 
 const stopTime = () => {
     played.value = false;
-    console.log(runTimeInterval);
     clearInterval(runTimeInterval);
     const stoppedTime = new Date();
     axios.post(route('timeTable.stopTime', currentTimeTableId), { stoppedAt: stoppedTime.toUTCString() })
         .then(res => {
+            console.log(res);
+            if (res.data.success) {
+                console.log(res.data.total_time);
+                totalTimeDisplay.value = makeTimeClock(res.data.total_time);
+            }
 
         })
         .catch(function (error) {
@@ -204,7 +314,7 @@ const viewProject = () => {
 }
 
 
-/****************DELETE*********/
+/*********DELETE MODAL**********/
 /*******************************/
 /*******************************/
 /*******************************/
@@ -227,7 +337,7 @@ const closeDeleteModal = () => {
 };
 
 
-/****************EDIT***********/
+/************EDIT MODAL***********/
 /*******************************/
 /*******************************/
 /*******************************/
@@ -259,6 +369,21 @@ const updateProject = () => {
 const closeEditModal = () => {
     confirmingEdition.value = false;
     form.reset();
+};
+
+
+/*************VIEW MODAL*********/
+/*******************************/
+/*******************************/
+/*******************************/
+const confirmingView = ref(false);
+
+const viewModal = () => {
+    confirmingView.value = true;
+};
+
+const closeViewModal = () => {
+    confirmingView.value = false;
 };
 
 

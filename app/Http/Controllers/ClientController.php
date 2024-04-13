@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
+use Carbon\Carbon;
 use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -50,8 +52,19 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
+
+        $projects = $client->projects()->with('times')->get()->map(function (Model $project, int $key) {
+            $project->time_started = false;
+            if ($project->times->count() && !$project->times->last()->ended_at) {
+                $project->time_started = (new Carbon($project->times->last()->started_at))->addHours(2)->toDateTimeString();
+                $project->time_id = $project->times->last()->id;
+            }
+
+            return $project;
+        });
+
         return Inertia::render('Dashboard/ClientProjects', [
-            'projects' => $client->projects()->orderBy('order', 'ASC')->get(),
+            'projects' => $projects,
             'client' => $client,
         ]);
     }
@@ -79,7 +92,7 @@ class ClientController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function setOrder(Request $request) : ResponseFactory
+    public function setOrder(Request $request): ResponseFactory
     {
         foreach ($request->clientsOrder as $clientOrder) {
             if ($client = Client::find($clientOrder['id'])) {

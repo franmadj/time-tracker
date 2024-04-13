@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,21 +11,38 @@ class Project extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'client_id', 'notes', 'hourly_rate','prioroty','period_from','total_time','ended_at','order','selected'];
+    protected $fillable = ['name', 'client_id', 'notes', 'hourly_rate', 'prioroty', 'period_from', 'total_time', 'ended_at', 'order', 'selected'];
 
-    function client(){
+    public function client()
+    {
         return $this->belongsTo(Client::class);
     }
 
-    function times(){
+    public function times()
+    {
         return $this->hasMany(timeTable::class);
     }
 
     protected function hourlyRate(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $value / 100,
-            set: fn ($value) => $value * 100
+            get: fn($value) => $value / 100,
+            set: fn($value) => $value * 100
         );
+    }
+
+    public function setTotalTime()
+    {
+        $totalTime = 0;
+        $this->times->each(function ($item) use (&$totalTime) {
+            if ($item->started_at && $item->ended_at) {
+                $startedAt = new Carbon($item->started_at);
+                $endedAt = new Carbon($item->ended_at);
+                $diff = $startedAt->diffInSeconds($endedAt);
+                logger('diff '.$diff);
+                $totalTime += $diff;
+            }
+        });
+        $this->update(['total_time' => $totalTime]);
     }
 }

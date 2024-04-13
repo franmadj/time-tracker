@@ -74,6 +74,17 @@ class ProjectController extends Controller
         return response(['success' => true, 'id' => $timeTable->id]);
     }
 
+    /**
+     * Update the specified resource in storage.
+     */
+    public function stopTime(Request $request, Project $project)
+    {
+        $date = new Carbon($request->stoppedAt);
+        //dd($date->toDateTimeString());
+        $timeTable = $project->times()->create(['started_at' => $date->toDateTimeString()]);
+        return response(['success' => true, 'id' => $timeTable->id]);
+    }
+
     
 
     /**

@@ -11,4 +11,9 @@ class timeTable extends Model
     protected $fillable = ['started_at','ended_at'];
 
     use HasFactory;
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }

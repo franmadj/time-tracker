@@ -2,17 +2,13 @@
 
 namespace App\Http\Controllers;
 
-
-
 use App\Models\timeTable;
 use Carbon\Carbon;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
 class TimeTableController extends Controller
 {
-    
 
     /**
      * Update the specified resource in storage.
@@ -25,9 +21,17 @@ class TimeTableController extends Controller
         return response(['success' => true, 'id' => $timeTable->id]);
     }
 
-    
-
-    
+    /**
+     * Update the specified resource in storage.
+     */
+    public function stopTime(Request $request, timeTable $timeTable)
+    {
+        $date = new Carbon($request->stoppedAt);
+        //dd($date->toDateTimeString());
+        $timeTable->update(['ended_at' => $date->toDateTimeString()]);
+        $timeTable->project->setTotalTime();
+        return response(['success' => true, 'id' => $timeTable->id, 'total_time' => $timeTable->project->total_time]);
+    }
 
     /**
      * Update the specified resource in storage.
@@ -42,9 +46,9 @@ class TimeTableController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Project $project)
+    public function destroy(timeTable $timeTable)
     {
-        $project->delete();
-        return Redirect::route('client.show', $project->client->slug);
+        $timeTable->delete();
+        return response(['success' => true, 'id' => $timeTable->id]);
     }
 }

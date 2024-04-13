@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TimeTableController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -52,6 +53,14 @@ Route::middleware('auth')->group(function () {
         Route::patch('/ordering', [ProjectController::class, 'setOrder'])->name('ordering');
         Route::delete('{project}', [ProjectController::class, 'destroy'])->name('destroy');
         Route::post('start-time/{project}', [ProjectController::class, 'startTime'])->name('startTime');
+        Route::post('stop-time/{project}', [ProjectController::class, 'stopTime'])->name('stopTime');
+    });
+
+    Route::group([
+        'prefix' => 'timeTable',
+        'as' => 'timeTable.'], function () {
+        Route::post('stop-time/{timeTable}', [TimeTableController::class, 'stopTime'])->name('stopTime');
+        Route::delete('{timeTable}', [TimeTableController::class, 'destroy'])->name('destroy');
     });
 
     

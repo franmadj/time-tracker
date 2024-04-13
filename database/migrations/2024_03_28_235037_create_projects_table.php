@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('hourly_rate')->default(100);
             $table->dateTime('period_from')->nullable();
             $table->dateTime('ended_at')->nullable();
-            $table->unsignedSmallInteger('total_time')->nullable();
+            $table->unsignedMediumInteger('total_time')->nullable();
             $table->boolean('selected')->default(false);
             $table->timestamps();
         });
