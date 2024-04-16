@@ -24,6 +24,7 @@ return new class extends Migration
             $table->dateTime('ended_at')->nullable();
             $table->unsignedMediumInteger('total_time')->nullable();
             $table->boolean('selected')->default(false);
+            $table->unsignedSmallInteger('extra_time')->default(0);
             $table->timestamps();
         });
     }

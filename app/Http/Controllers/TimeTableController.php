@@ -49,6 +49,7 @@ class TimeTableController extends Controller
     public function destroy(timeTable $timeTable)
     {
         $timeTable->delete();
-        return response(['success' => true, 'id' => $timeTable->id]);
+        $timeTable->project->setTotalTime();
+        return Redirect::route('project.show', $timeTable->project->id);
     }
 }

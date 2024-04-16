@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class ProjectController extends Controller
 {
@@ -85,14 +86,20 @@ class ProjectController extends Controller
         return response(['success' => true, 'id' => $timeTable->id]);
     }
 
-    
-
     /**
      * Display the specified resource.
      */
     public function show(Project $project)
     {
-        //
+        $project->time_started = false;
+        if ($project->times->count() && !$project->times->last()->ended_at) {
+            $project->time_started = (new Carbon($project->times->last()->started_at))->addHours(2)->toDateTimeString();
+            $project->time_id = $project->times->last()->id;
+        }
+        return Inertia::render('Dashboard/Project', [
+            'project' => $project,
+            'client' => $project->client,
+        ]);
     }
 
     /**
@@ -110,6 +117,7 @@ class ProjectController extends Controller
     {
         $validated = $request->validated();
         $project->update($validated);
+        $project->setTotalTime();
         return Redirect::route('client.show', $request->client_slug);
     }
 

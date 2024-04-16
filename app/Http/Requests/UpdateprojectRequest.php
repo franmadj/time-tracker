@@ -25,6 +25,7 @@ class UpdateProjectRequest extends FormRequest
             'name' => 'required|unique:projects,name,'.$this->project->id.'|max:255',
             'hourly_rate' => 'required|numeric',
             'notes' => 'required|max:255',
+            'extra_time' => 'nullable|numeric',
         ];
     }
 }

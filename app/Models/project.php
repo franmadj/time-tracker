@@ -11,7 +11,7 @@ class Project extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'client_id', 'notes', 'hourly_rate', 'prioroty', 'period_from', 'total_time', 'ended_at', 'order', 'selected'];
+    protected $fillable = ['name', 'client_id', 'notes', 'hourly_rate', 'prioroty', 'period_from', 'total_time', 'ended_at', 'order', 'selected', 'extra_time'];
 
     public function client()
     {
@@ -33,13 +33,13 @@ class Project extends Model
 
     public function setTotalTime()
     {
-        $totalTime = 0;
+        $totalTime = intval($this->extra_time) * 60;
         $this->times->each(function ($item) use (&$totalTime) {
             if ($item->started_at && $item->ended_at) {
                 $startedAt = new Carbon($item->started_at);
                 $endedAt = new Carbon($item->ended_at);
                 $diff = $startedAt->diffInSeconds($endedAt);
-                logger('diff '.$diff);
+                logger('diff ' . $diff);
                 $totalTime += $diff;
             }
         });

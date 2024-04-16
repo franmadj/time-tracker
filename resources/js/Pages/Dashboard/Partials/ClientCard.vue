@@ -20,11 +20,11 @@
         <p v-show="client.total_time" class="mb-1">Total time: 10:25</p>
         <p v-show="client.earnings" class="mb-1">Earnings: {{ client.currency }}{{ client.earnings }}</p>
         <p class="mb-1">Prioroty:
-            <span @click="setPrioroty('high')" class="cursor-pointer"
+            <span @click.stop="setPrioroty('high')" class="cursor-pointer"
                 :class="{ 'text-red-500': 'high' == props.client.prioroty }">High</span> /
-            <span @click="setPrioroty('middle')" class="cursor-pointer"
+            <span @click.stop="setPrioroty('middle')" class="cursor-pointer"
                 :class="{ 'text-yellow-500': 'middle' == props.client.prioroty }">Middle</span> /
-            <span @click="setPrioroty('low')" class="cursor-pointer"
+            <span @click.stop="setPrioroty('low')" class="cursor-pointer"
                 :class="{ 'text-green-500': 'low' == props.client.prioroty }">Low</span>
         </p>
     </div>

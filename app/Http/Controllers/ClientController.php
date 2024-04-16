@@ -59,7 +59,6 @@ class ClientController extends Controller
                 $project->time_started = (new Carbon($project->times->last()->started_at))->addHours(2)->toDateTimeString();
                 $project->time_id = $project->times->last()->id;
             }
-
             return $project;
         });
 
@@ -80,13 +79,13 @@ class ClientController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function setPriorory(Client $client, Request $request): RedirectResponse
+    public function setPriorory(Client $client, Request $request)
     {
         $validated = $request->validate([
             'prioroty' => 'required|in:low,middle,high',
         ]);
         $client->update($validated);
-        return Redirect::route('client.index');
+        return response(['success' => true]);
     }
 
     /**

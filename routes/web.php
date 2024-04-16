@@ -46,7 +46,7 @@ Route::middleware('auth')->group(function () {
         'prefix' => 'project',
         'as' => 'project.'], function () {
         Route::get('/', [ClientController::class, 'index'])->name('index');
-        Route::get('{client:slug}', [ClientController::class, 'show'])->name('show');
+        Route::get('{project}', [ProjectController::class, 'show'])->name('show');
         Route::post('/', [ProjectController::class, 'store'])->name('store');
         Route::put('{project}', [ProjectController::class, 'update'])->name('update');
         Route::patch('{project}/prioroty', [ProjectController::class, 'setPriorory'])->name('prioroty');
