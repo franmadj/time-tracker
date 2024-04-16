@@ -13,14 +13,17 @@
 
 
 
-                    <div class="flex justify-between mb-3">
-                        <div class="flex gap-3">
+                    <div class="flex justify-between items-center mb-3 gap-2">
+                        <div class="flex gap-3 grow">
                             <Link :href="route('client.index')"
-                                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                                class="grow-0 inline-flex items-center w-fit px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                             << Back</Link>
                                 <button type="button" @click="calculate"
-                                    class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
-                                Calculate</button>
+                                    class="grow-0 inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                                    Calculate</button>
+                                <InputLabel for="name" value="name" class="sr-only" />
+                                <TextInput id="name" ref="projectNameInput" @keyup="searchProject" v-model="formSearch.name" type="text"
+                                    class="grow" placeholder="Search by Project Name" />
                         </div>
                         <h1>{{ client.name }}</h1>
 
@@ -106,19 +109,37 @@
                                     <th>Earnings</th>
                                 </tr>
                                 <tr v-for="(selectedProject, index) in selectedProjects" :key="index">
-                                    <td class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">{{ selectedProject.name }}</td>
-                                    <td class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">{{ makeTimeClock(selectedProject.total_time) }}</td>
-                                    <td class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">300</td>
+                                    <td
+                                        class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">
+                                        {{
+                                            selectedProject.name }}</td>
+                                    <td
+                                        class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">
+                                        {{
+                                            makeTimeClock(selectedProject.total_time) }}</td>
+                                    <td
+                                        class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">
+                                        300
+                                    </td>
                                 </tr>
                                 <tr>
-                                    <td class="text-center px-5 py-1 text-lg font-bold bg-gray-200 border border-b-white">Totals</td>
-                                    <td class="text-center px-5 py-1 text-lg font-bold bg-gray-200 border border-b-white">{{ makeTimeClock(99999) }}</td>
-                                    <td class="text-center px-5 py-1 text-lg font-bold bg-gray-200 border border-b-white">300</td>
+                                    <td
+                                        class="text-center px-5 py-1 text-lg font-bold bg-gray-200 border border-b-white">
+                                        Totals
+                                    </td>
+                                    <td
+                                        class="text-center px-5 py-1 text-lg font-bold bg-gray-200 border border-b-white">
+                                        {{
+                                            makeTimeClock(99999) }}</td>
+                                    <td
+                                        class="text-center px-5 py-1 text-lg font-bold bg-gray-200 border border-b-white">
+                                        300
+                                    </td>
                                 </tr>
 
                             </table>
-                            
-                            
+
+
                         </div>
                     </Modal>
                 </div>
@@ -137,14 +158,16 @@ import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import ProjectCard from './Partials/ProjectCard.vue';
-import { nextTick, ref, defineProps, onMounted } from 'vue';
+import { nextTick, ref, defineProps, onMounted, computed } from 'vue';
+import axios from 'axios';
 
 const creatingNewProject = ref(false);
 const projectNameInput = ref(null);
 const projects = ref([]);
 const selectedProjects = ref([]);
-const selectAll= ref(false);
+const selectAll = ref(false);
 const calculating = ref(false);
+//const searchProject = ref('');
 
 const props = defineProps({
     projects: {
@@ -160,21 +183,45 @@ onMounted(() => {
     projects.value = props.projects;
 });
 
+
+const formSearch = useForm({
+    name: ''
+});
+const searchProject=(e)=>{
+    //console.log(props.client.slug,e.target.value, route('client.search', [props.client.slug, e.target.value]));
+  
+    axios
+        .get(route('client.search', [props.client.slug, e.target.value]))
+        .then(res => {
+            console.log(res);
+            if (200==res.status) {
+                projects.value = res.data.projects;
+
+            } else {
+                //toaster.error(`Error`);
+            }
+        })
+        .catch(function (error) {
+            //toaster.error(error);
+        });
+}
+
+
 const doSelectAll = () => {
-    setTimeout(()=>{
+    setTimeout(() => {
         console.log(selectAll.value)
-        projects.value=projects.value.map((project)=>{
-            project.selected=selectAll.value;
+        projects.value = projects.value.map((project) => {
+            project.selected = selectAll.value;
             return project;
 
         });
         console.log(projects.value);
-    },100)
-    
+    }, 100)
+
 }
 
-const deleteProject=()=>{
-    projects.value = props.projects;
+const deleteProject = () => {
+    //projects.value = props.projects;
     //router.reload({ only: ['projects'] })
 }
 
@@ -252,7 +299,7 @@ const storeProject = () => {
     form
         .post(route('project.store'), {
             preserveScroll: true,
-            onSuccess: () => { projects.value = props.projects; closeModal() },
+            onSuccess: () => { closeModal() },
             onError: () => projectNameInput.value.focus()
 
         });
@@ -264,11 +311,11 @@ const closeModal = () => {
 };
 
 const calculate = () => {
-    selectedProjects.value=projects.value.filter((project)=>{
-            return project.selected;
+    selectedProjects.value = projects.value.filter((project) => {
+        return project.selected;
 
-        });
-        console.log(selectedProjects.value);
+    });
+    console.log(selectedProjects.value);
     calculating.value = true;
 };
 

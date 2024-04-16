@@ -153,12 +153,12 @@ const props = defineProps({
 });
 
 const played = ref(false);
-const selected = ref(false);
 const ended = ref(false);
 const timing = ref('00:00:00');
 let runTimeInterval = 1;
 let currentTimeTableId = 0;
-const totalTimeDisplay = ref(false);
+const totalTime = ref(false);
+
 const emit = defineEmits(['delete:project']) // must emits
 
 
@@ -172,6 +172,10 @@ const extraHours = computed(() => {
     return form.extra_time > 0 ? (form.extra_time / 60).toFixed(2) : 0;
 })
 
+const totalTimeDisplay = computed(() => {
+    return makeTimeClock(totalTime.value);
+})
+
 const setData = () => {
     if (props.project.time_started) {
         currentTimeTableId = props.project.time_id;
@@ -180,11 +184,10 @@ const setData = () => {
         played.value = true;
     }
     if (props.project.total_time) {
-        totalTimeDisplay.value = makeTimeClock(props.project.total_time);
+        totalTime.value = props.project.total_time;
     }
 
 }
-
 
 const playTime = () => {
     timing.value = '00:00:00';
@@ -234,7 +237,7 @@ const stopTime = () => {
             console.log(res);
             if (res.data.success) {
                 console.log(res.data.total_time);
-                totalTimeDisplay.value = makeTimeClock(res.data.total_time);
+                totalTime.value = res.data.total_time;
             }
 
         })
