@@ -27,7 +27,7 @@
                     </div>
 
                     <div class="flex gap-2 items-center mb-2">
-                        <InputLabel for="selectall" value="selected" class="text-black text-xl font-light leading-5"
+                        <InputLabel for="selectall" value="Select All" class="text-black text-xl font-light leading-5"
                             @click.stop />
                         <input type="checkbox" id="selectall" v-model="selectAll" @click.stop="doSelectAll()">
                     </div>
@@ -40,7 +40,7 @@
                             @click="viewProject(project.id)" @dragstart="handleDragStart(index)"
                             @dragover="handleDragOver" @drop="handleDrop(index)"
                             class="p-3 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-[360px] rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
-                            <ProjectCard :project="project" :client="client" />
+                            <ProjectCard :project="project" :client="client" @delete:project="deleteProject" />
                         </div>
 
                         <div
@@ -173,6 +173,11 @@ const doSelectAll = () => {
     
 }
 
+const deleteProject=()=>{
+    projects.value = props.projects;
+    //router.reload({ only: ['projects'] })
+}
+
 const makeTimeClock = (totalSeconds) => {
     let clockHours = Math.floor(totalSeconds / (60 * 60));
     let clockMinutes = Math.floor((totalSeconds % (60 * 60)) / (60));
@@ -247,9 +252,8 @@ const storeProject = () => {
     form
         .post(route('project.store'), {
             preserveScroll: true,
-            onSuccess: () => closeModal(),
-            onError: () => projectNameInput.value.focus(),
-            onFinish: () => form.reset(),
+            onSuccess: () => { projects.value = props.projects; closeModal() },
+            onError: () => projectNameInput.value.focus()
 
         });
 };

@@ -159,6 +159,7 @@ const timing = ref('00:00:00');
 let runTimeInterval = 1;
 let currentTimeTableId = 0;
 const totalTimeDisplay = ref(false);
+const emit = defineEmits(['delete:project']) // must emits
 
 
 
@@ -183,10 +184,6 @@ const setData = () => {
     }
 
 }
-
-
-
-
 
 
 const playTime = () => {
@@ -247,9 +244,6 @@ const stopTime = () => {
 
 }
 
-
-
-
 const viewProject = () => {
     router.get(route('project.show', props.project.id))
 }
@@ -269,7 +263,7 @@ const deleteModal = () => {
 const deleteProject = () => {
     formDelete.delete(route('project.destroy', props.project.id), {
         preserveScroll: true,
-        onSuccess: () => closeEditModal(),
+        onSuccess: () => { emit('delete:project'); closeDeleteModal() },
         onError: () => deleteNameInput.value.focus()
     });
 };
