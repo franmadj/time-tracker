@@ -12,7 +12,7 @@
             <path
                 d="M170.5 51.6L151.5 80h145l-19-28.4c-1.5-2.2-4-3.6-6.7-3.6H177.1c-2.7 0-5.2 1.3-6.7 3.6zm147-26.6L354.2 80H368h48 8c13.3 0 24 10.7 24 24s-10.7 24-24 24h-8V432c0 44.2-35.8 80-80 80H112c-44.2 0-80-35.8-80-80V128H24c-13.3 0-24-10.7-24-24S10.7 80 24 80h8H80 93.8l36.7-55.1C140.9 9.4 158.4 0 177.1 0h93.7c18.7 0 36.2 9.4 46.6 24.9zM80 128V432c0 17.7 14.3 32 32 32H336c17.7 0 32-14.3 32-32V128H80zm80 64V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16z" />
         </svg>
-        <h2 class="text-white font-bold mb-2 m-w-[288px]">{{ project.name }}</h2>
+        <h2 class="text-white font-bold mb-2 max-w-[288px]">{{ project.name }}</h2>
         <p class="mb-1">Prioroty:
             <span @click.stop="setPrioroty('high')" class="cursor-pointer"
                 :class="{ 'text-red-500': 'high' == props.project.prioroty }">High</span> /
@@ -31,8 +31,9 @@
             </div>
             <div class="w-[102px]">
                 <div class="flex items-center gap-2 justify-end mb-2">
-                    <InputLabel :for="'selected-'+project.id" value="selected" class="text-white text-xl font-light leading-5" @click.stop />
-                    <input type="checkbox" :id="'selected-'+project.id" v-model="project.selected" @click.stop>
+                    <InputLabel :for="'selected-' + project.id" value="selected"
+                        class="text-white text-xl font-light leading-5" @click.stop />
+                    <input type="checkbox" :id="'selected-' + project.id" v-model="project.selected" @click.stop>
                 </div>
                 <div class="flex items-center gap-2 justify-end mb-2">
                     <InputLabel for="ended" value="ended" class="text-white text-xl font-light leading-5" @click.stop />
@@ -91,10 +92,11 @@
             </div>
             <div class="mt-6">
                 <InputLabel for="extra_time" value="extra_time" class="sr-only" />
-                <div class="relative w-3/4">
-                    <span class="absolute right-2 top-[9px]">Minutes</span>
-                    <TextInput id="extra_time" v-model="form.extra_time" type="text" class="mt-1 block w-3/4"
+                <div class="flex gap-2 items-center w-3/4">
+
+                    <TextInput id="extra_time" v-model="form.extra_time" type="text" class="mt-1 block w-32"
                         placeholder="Extra Minutes" @keyup.enter="updateProject" />
+                    <span class="">Minutes / <b>{{ extraHours }}</b> Hours</span>
                 </div>
                 <InputError :message="form.errors.extra_time" class="mt-2" />
             </div>
@@ -126,7 +128,7 @@
         </div>
     </Modal>
 
-    
+
 </template>
 
 <script setup>
@@ -159,14 +161,17 @@ let currentTimeTableId = 0;
 const totalTimeDisplay = ref(false);
 
 
+
 onMounted(() => {
     console.log('project', props.project);
     setData();
-
-    
 });
 
-const setData=()=>{
+const extraHours = computed(() => {
+    return form.extra_time > 0 ? (form.extra_time / 60).toFixed(2) : 0;
+})
+
+const setData = () => {
     if (props.project.time_started) {
         currentTimeTableId = props.project.time_id;
         const startedTime = new Date(props.project.time_started);
