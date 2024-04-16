@@ -39,7 +39,7 @@
                         <div v-for="(project, index) of projects" :key="index" :draggable="true"
                             @click="viewProject(project.id)" @dragstart="handleDragStart(index)"
                             @dragover="handleDragOver" @drop="handleDrop(index)"
-                            class="p-4 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
+                            class="p-3 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-[360px] rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
                             <ProjectCard :project="project" :client="client" />
                         </div>
 
