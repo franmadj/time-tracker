@@ -18,12 +18,12 @@
                             <Link :href="route('client.index')"
                                 class="grow-0 inline-flex items-center w-fit px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                             << Back</Link>
-                                <button type="button" @click="calculate"
+                                <button type="button" :disabled="calculateDisabled" @click="calculate"
                                     class="grow-0 inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                                     Calculate</button>
                                 <InputLabel for="name" value="name" class="sr-only" />
-                                <TextInput id="name" ref="projectNameInput" @keyup="searchProject" v-model="formSearch.name" type="text"
-                                    class="grow" placeholder="Search by Project Name" />
+                                <TextInput id="name" ref="searchInput" @keyup="searchProject" v-model="formSearch.term"
+                                    type="text" class="grow" placeholder="Search by Project Name" />
                         </div>
                         <h1>{{ client.name }}</h1>
 
@@ -70,7 +70,7 @@
 
                             <div class="mt-6">
                                 <InputLabel for="notes" value="notes" class="sr-only" />
-                                <textarea id="notes" ref="projectNameInput" v-model="form.notes" type="text"
+                                <textarea id="notes" v-model="form.notes" type="text"
                                     class="mt-1 block w-3/4 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                                     placeholder="Notes" @keyup.enter="storeProject"></textarea>
 
@@ -119,7 +119,8 @@
                                             makeTimeClock(selectedProject.total_time) }}</td>
                                     <td
                                         class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">
-                                        300
+                                        {{
+                                            calculateEarnings(selectedProject) }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -129,11 +130,10 @@
                                     </td>
                                     <td
                                         class="text-center px-5 py-1 text-lg font-bold bg-gray-200 border border-b-white">
-                                        {{
-                                            makeTimeClock(99999) }}</td>
+                                        {{ totalTimeSum }}</td>
                                     <td
                                         class="text-center px-5 py-1 text-lg font-bold bg-gray-200 border border-b-white">
-                                        300
+                                        {{ totalEarningsSum }}
                                     </td>
                                 </tr>
 
@@ -159,15 +159,16 @@ import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import ProjectCard from './Partials/ProjectCard.vue';
 import { nextTick, ref, defineProps, onMounted, computed } from 'vue';
-import axios from 'axios';
 
 const creatingNewProject = ref(false);
 const projectNameInput = ref(null);
+const searchInput = ref(null);
 const projects = ref([]);
 const selectedProjects = ref([]);
 const selectAll = ref(false);
 const calculating = ref(false);
 //const searchProject = ref('');
+
 
 const props = defineProps({
     projects: {
@@ -176,34 +177,51 @@ const props = defineProps({
     client: {
         type: Object,
     },
+    searchTerm: {
+        type: String,
+    },
 });
 
 onMounted(() => {
     console.log('props', props);
+    console.log(searchInput);
     projects.value = props.projects;
+});
+
+const calculateDisabled = computed(() => {
+    return !projects.value.filter((project) => {
+        return project.selected
+    }).length;
+
 });
 
 
 const formSearch = useForm({
-    name: ''
+    term: props.searchTerm
 });
-const searchProject=(e)=>{
-    //console.log(props.client.slug,e.target.value, route('client.search', [props.client.slug, e.target.value]));
-  
-    axios
-        .get(route('client.search', [props.client.slug, e.target.value]))
-        .then(res => {
-            console.log(res);
-            if (200==res.status) {
-                projects.value = res.data.projects;
+let timeout = 0;
+const searchProject = (e) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        formSearch
+            .get(route('client.show', [props.client.slug]), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setTimeout(() => {
+                        //console.log(searchInput);
+                    }, 2000);
 
-            } else {
-                //toaster.error(`Error`);
-            }
-        })
-        .catch(function (error) {
-            //toaster.error(error);
-        });
+
+                    //nextTick(() => {console.log(searchInput);searchInput.value.focus()});
+
+                },
+
+
+            });
+
+    }, 500);
+
+
 }
 
 
@@ -221,7 +239,7 @@ const doSelectAll = () => {
 }
 
 const deleteProject = () => {
-    //projects.value = props.projects;
+    projects.value = props.projects;
     //router.reload({ only: ['projects'] })
 }
 
@@ -236,11 +254,22 @@ const makeTimeClock = (totalSeconds) => {
 
 }
 
+const calculateEarnings = (project) => {
+
+    return parseFloat(((project.total_time / 60) / 60) * project.hourly_rate).toFixed(2);
+}
+
 const viewProject = (id) => {
-    console.log(id);
+
     router.get(route('project.show', id))
 }
 
+
+
+/************DRAG & DROP*********/
+/*******************************/
+/*******************************/
+/*******************************/
 const draggedItem = ref(null);
 
 const handleDragStart = (index) => {
@@ -253,12 +282,12 @@ const handleDragOver = (event) => {
 
 const handleDrop = (index) => {
     console.log(props.projects);
-    const droppedItem = props.projects.splice(draggedItem.value, 1)[0];
-    props.projects.splice(index, 0, droppedItem);
+    const droppedItem = projects.value.splice(draggedItem.value, 1)[0];
+    projects.value.splice(index, 0, droppedItem);
     draggedItem.value = null;
     let projectsOrder = [];
     let order = 0;
-    props.projects.forEach(element => {
+    projects.value.forEach(element => {
         projectsOrder.push({ 'id': element.id, 'order': order });
         order++;
     });
@@ -299,7 +328,7 @@ const storeProject = () => {
     form
         .post(route('project.store'), {
             preserveScroll: true,
-            onSuccess: () => { closeModal() },
+            onSuccess: () => { projects.value = props.projects; closeModal() },
             onError: () => projectNameInput.value.focus()
 
         });
@@ -310,11 +339,27 @@ const closeModal = () => {
     form.reset();
 };
 
+
+const totalTimeSum = ref(0);
+const totalEarningsSum = ref(0);
 const calculate = () => {
     selectedProjects.value = projects.value.filter((project) => {
         return project.selected;
-
     });
+
+    let totalEarnings = 0;
+
+    const totalSeconds = selectedProjects.value.reduce((total, project) => {
+        totalEarnings += parseFloat(calculateEarnings(project));
+        console.log(totalEarnings);
+        return total + project.total_time;
+    }, 0);
+
+
+
+
+    totalTimeSum.value = makeTimeClock(totalSeconds)
+    totalEarningsSum.value = totalEarnings;
     console.log(selectedProjects.value);
     calculating.value = true;
 };

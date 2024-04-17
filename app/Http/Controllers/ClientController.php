@@ -52,7 +52,13 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
-        $projects = $client->projects()->with('times')->orderBy('order', 'ASC')->get()->map(function (Model $project, int $key) {
+        $projects = $client->projects()->with('times')->orderBy('order', 'ASC');
+        $term = request('term') ?: '';
+        if (strlen($term)) {
+            $projects = $projects->where('name', 'like', '%' . $term . '%');
+        }
+
+        $projects = $projects->get()->map(function (Model $project, int $key) {
             $project->time_started = false;
             if ($project->times->count() && !$project->times->last()->ended_at) {
                 $project->time_started = (new Carbon($project->times->last()->started_at))->addHours(2)->toDateTimeString();
@@ -64,6 +70,7 @@ class ClientController extends Controller
         return Inertia::render('Dashboard/ClientProjects', [
             'projects' => $projects,
             'client' => $client,
+            'searchTerm' => $term,
         ]);
     }
 
