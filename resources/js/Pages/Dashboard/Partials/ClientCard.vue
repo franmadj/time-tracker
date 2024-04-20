@@ -17,7 +17,7 @@
         <h2 class="text-white font-bold mb-2">{{ client.name }}</h2>
         <p v-show="client.period_from" class="mb-1">Prdiod from: {{ client.period_from }}</p>
         <p v-show="client.active_projects" class="mb-1">Active Projects: {{ client.active_projects }}</p>
-        <p v-show="client.total_time" class="mb-1">Total time: 10:25</p>
+        <p v-show="client.total_time" class="mb-1">Total time: {{ makeTimeClock(client.total_time) }}</p>
         <p v-show="client.earnings" class="mb-1">Earnings: {{ client.currency }}{{ client.earnings }}</p>
         <p class="mb-1">Prioroty:
             <span @click.stop="setPrioroty('high')" class="cursor-pointer"
@@ -122,14 +122,7 @@ import { ColorPicker } from 'vue-accessible-color-picker'
 import { nextTick, ref, defineProps, onMounted } from 'vue';
 
 
-
-const editNameInput = ref(null);
-const deleteNameInput = ref(null);
-let color = ref('#ccc');
-
-
-const confirmingDeletion = ref(false);
-const confirmingEdition = ref(false);
+const color = ref('#ccc');
 
 const props = defineProps({
     client: {
@@ -145,16 +138,27 @@ const formDelete = useForm({
 
 onMounted(() => {
     console.log('onmounted');
-
-
-    
-    
 })
 
+const makeTimeClock = (totalSeconds) => {
+    let clockHours = Math.floor(totalSeconds / (60 * 60));
+    let clockMinutes = Math.floor((totalSeconds % (60 * 60)) / (60));
+    let clockSeconds = Math.floor((totalSeconds % (60)) / 1);
+    clockHours = (clockHours < 10 ? "0" : "") + clockHours;
+    clockMinutes = (clockMinutes < 10 ? "0" : "") + clockMinutes;
+    clockSeconds = (clockSeconds < 10 ? "0" : "") + clockSeconds;
+    return (clockHours + ':' + clockMinutes + ':' + clockSeconds);
+
+}
 
 
+/************EDIT MODAL***********/
+/*******************************/
+/*******************************/
+/*******************************/
+const editNameInput = ref(null);
+const confirmingEdition = ref(false);
 const editModal = () => {
-
     form = useForm({
         name: props.client.name,
         hourly_rate: String(props.client.hourly_rate),
@@ -164,28 +168,6 @@ const editModal = () => {
     confirmingEdition.value = true;
     nextTick(() => editNameInput.value.focus());
 }
-
-const deleteModal = () => {
-    confirmingDeletion.value = true;
-    nextTick(() => deleteNameInput.value.focus());
-};
-
-const deleteClient = () => {
-    console.log(props.client.name, formDelete.name);
-    if (props.client.name != formDelete.name) {
-        formDelete.setError('name', 'Name is incorrect.');
-        return;
-    }
-    formDelete.clearErrors()
-
-    formDelete.delete(route('client.destroy', props.client.id), {
-        preserveScroll: true,
-        onSuccess: () => closeDeleteModal(),
-        onError: () => deleteNameInput.value.focus(),
-        onFinish: () => formDelete.reset(),
-    });
-};
-
 const updateClient = () => {
     form
         .transform((data) => ({
@@ -201,14 +183,41 @@ const updateClient = () => {
 
         });
 };
+const closeEditModal = () => {
+    confirmingEdition.value = false;
+};
 
+
+/*********DELETE MODAL**********/
+/*******************************/
+/*******************************/
+/*******************************/
+const deleteNameInput = ref(null);
+const confirmingDeletion = ref(false);
+const deleteModal = () => {
+    confirmingDeletion.value = true;
+    nextTick(() => deleteNameInput.value.focus());
+};
+const deleteClient = () => {
+    console.log(props.client.name, formDelete.name);
+    if (props.client.name != formDelete.name) {
+        formDelete.setError('name', 'Name is incorrect.');
+        return;
+    }
+    formDelete.clearErrors()
+
+    formDelete.delete(route('client.destroy', props.client.id), {
+        preserveScroll: true,
+        onSuccess: () => closeDeleteModal(),
+        onError: () => deleteNameInput.value.focus(),
+        onFinish: () => formDelete.reset(),
+    });
+};
 const closeDeleteModal = () => {
     confirmingDeletion.value = false;
     formDelete.reset();
 };
-const closeEditModal = () => {
-    confirmingEdition.value = false;
-};
+
 
 
 

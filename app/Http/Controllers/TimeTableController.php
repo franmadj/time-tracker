@@ -30,7 +30,8 @@ class TimeTableController extends Controller
         //dd($date->toDateTimeString());
         $timeTable->update(['ended_at' => $date->toDateTimeString()]);
         $timeTable->project->setTotalTime();
-        return response(['success' => true, 'id' => $timeTable->id, 'total_time' => $timeTable->project->total_time]);
+        $timeTable->project->client->setTotalTime();
+        return response(['success' => true, 'id' => $timeTable->id, 'project' => $timeTable->project]);
     }
 
     /**

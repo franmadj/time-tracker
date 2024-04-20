@@ -35,7 +35,6 @@ Route::middleware('auth')->group(function () {
         'as' => 'client.'], function () {
         Route::get('/', [ClientController::class, 'index'])->name('index');
         Route::get('{client:slug}', [ClientController::class, 'show'])->name('show');
-        Route::get('{client:slug}/{term}', [ClientController::class, 'search'])->name('search');
         Route::post('/', [ClientController::class, 'store'])->name('store');
         Route::put('{client}', [ClientController::class, 'update'])->name('update');
         Route::patch('{client}/prioroty', [ClientController::class, 'setPriorory'])->name('prioroty');

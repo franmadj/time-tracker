@@ -24,19 +24,19 @@
 
         <div class="flex">
             <div class="f w-[224px]">
-                <p v-show="project.period_from" class="mb-1">Prdiod from: {{ project.period_from }}</p>
+                <p v-show="project.period_from" class="mb-1">Prdiod from: <span class="block">{{ project.period_from }}</span></p>
                 <p v-show="project.ended_at" class="mb-1">Ended At: {{ project.ended_at }}</p>
-                <p v-show="totalTimeDisplay" class="mb-1">Total time: {{ totalTimeDisplay }}</p>
+                <p v-show="totalTimeDisplay" class="mb-1">Total time: <span class="">{{ totalTimeDisplay }}</span></p>
                 <p v-show="project.earnings" class="mb-1 underline cursor-pointer">Time Table</p>
             </div>
             <div class="w-[102px]">
                 <div class="flex items-center gap-2 justify-end mb-2">
                     <InputLabel :for="'selected-' + project.id" value="selected"
-                        class="text-white text-xl font-light leading-5" @click.stop />
+                        class="text-white text-sm font-light leading-5" @click.stop />
                     <input type="checkbox" :id="'selected-' + project.id" v-model="project.selected" @click.stop>
                 </div>
                 <div class="flex items-center gap-2 justify-end mb-2">
-                    <InputLabel for="ended" value="ended" class="text-white text-xl font-light leading-5" @click.stop />
+                    <InputLabel for="ended" value="ended" class="text-white text-sm font-light leading-5" @click.stop />
                     <input type="checkbox" id="ended" v-model="ended" @click.stop>
                 </div>
 
@@ -45,13 +45,13 @@
             </div>
         </div>
 
-        <svg v-if="played" @click.stop="stopTime"
+        <svg v-if="played" @click.stop="stopButton"
             class="absolute right-3 bottom-3 w-8 h-8 cursor-pointer fill-red-400 hover:fill-red-500"
             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
             <path
                 d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128z" />
         </svg>
-        <svg v-else @click.stop="playTime"
+        <svg v-else @click.stop="playButton(false)"
             class="absolute right-3 bottom-3 w-8 h-8 cursor-pointer fill-green-400 hover:fill-green-500"
             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
             <path
@@ -96,12 +96,12 @@
 
                     <TextInput id="extra_time" v-model="form.extra_time" type="text" class="mt-1 block w-32"
                         placeholder="Extra Minutes" @keyup.enter="updateProject" />
-                    <span class="">Minutes / <b>{{ extraHours }}</b> Hours</span>
+                    <span class="">Minutes / <b>{{ secondsToHours }}</b> Hours</span>
                 </div>
                 <InputError :message="form.errors.extra_time" class="mt-2" />
             </div>
             <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeEditModal"> Cancel </SecondaryButton>
+                <SecondaryButton @click="closeEditModal"> Close </SecondaryButton>
                 <SaveButton class="ms-3" :class="{ 'opacity-25': form.processing }" :disabled="form.processing"
                     @click="updateProject">
                     Save
@@ -119,7 +119,7 @@
                 This proyect and all its time history will be deleted.
             </p>
             <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeDeleteModal"> Cancel </SecondaryButton>
+                <SecondaryButton @click="closeDeleteModal"> Close </SecondaryButton>
                 <DangerButton class="ms-3" :class="{ 'opacity-25': formDelete.processing }"
                     :disabled="formDelete.processing" @click="deleteProject">
                     Delete Project
@@ -150,7 +150,12 @@ const props = defineProps({
     client: {
         type: Object,
     },
+    index: {
+        type: Number,
+    },
 });
+
+const projectItem = computed(() => props.project);
 
 const played = ref(false);
 const ended = ref(false);
@@ -168,20 +173,19 @@ onMounted(() => {
     setData();
 });
 
-const extraHours = computed(() => {
+const secondsToHours = computed(() => {
     return form.extra_time > 0 ? (form.extra_time / 60).toFixed(2) : 0;
 })
 
 const totalTimeDisplay = computed(() => {
-    return makeTimeClock(totalTime.value);
+    return formatDigitalClock(projectItem.value.total_time);
 })
 
 const setData = () => {
+
+    console.log('set data', props.project.total_time);
     if (props.project.time_started) {
-        currentTimeTableId = props.project.time_id;
-        const startedTime = new Date(props.project.time_started);
-        startClock(startedTime);
-        played.value = true;
+        playButton(true);
     }
     if (props.project.total_time) {
         totalTime.value = props.project.total_time;
@@ -189,9 +193,15 @@ const setData = () => {
 
 }
 
-const playTime = () => {
-    timing.value = '00:00:00';
+const playButton = (previousPlay = false) => {
     played.value = true;
+    if (previousPlay) {
+        currentTimeTableId = props.project.time_id;
+        const startedTime = new Date(props.project.time_started);
+        startClock(startedTime);
+        return;
+    }
+    timing.value = '00:00:00';
     const startedTime = new Date();
     axios.post(route('project.startTime', props.project.id), { startedAt: startedTime.toUTCString() })
         .then(res => {
@@ -199,12 +209,30 @@ const playTime = () => {
                 currentTimeTableId = res.data.id;
                 startClock(startedTime);
             } else {
-                //toaster.error(`Error`);
             }
         })
         .catch(function (error) {
             //toaster.error(error);
         });
+}
+const stopButton = () => {
+    played.value = false;
+    clearInterval(runTimeInterval);
+    const stoppedTime = new Date();
+    axios.post(route('timeTable.stopTime', currentTimeTableId), { stoppedAt: stoppedTime.toUTCString() })
+        .then(res => {
+            console.log(res);
+            if (res.data.success) {
+                console.log(res.data.project.total_time);
+                projectItem.value.total_time = res.data.project.total_time;
+                //projectItem.value.total_time = res.data.project.total_time;
+            }
+
+        })
+        .catch(function (error) {
+            //toaster.error(error);
+        });
+
 }
 
 const startClock = (startedTime) => {
@@ -212,12 +240,12 @@ const startClock = (startedTime) => {
         const now = new Date();
         const diff = now.getTime() - startedTime.getTime();
         const totalSeconds = Math.round(diff / (1000));
-        timing.value = makeTimeClock(totalSeconds);
+        timing.value = formatDigitalClock(totalSeconds);
     }, 1000);
 
 }
 
-const makeTimeClock = (totalSeconds) => {
+const formatDigitalClock = (totalSeconds) => {
     let clockHours = Math.floor(totalSeconds / (60 * 60));
     let clockMinutes = Math.floor((totalSeconds % (60 * 60)) / (60));
     let clockSeconds = Math.floor((totalSeconds % (60)) / 1);
@@ -228,24 +256,7 @@ const makeTimeClock = (totalSeconds) => {
 
 }
 
-const stopTime = () => {
-    played.value = false;
-    clearInterval(runTimeInterval);
-    const stoppedTime = new Date();
-    axios.post(route('timeTable.stopTime', currentTimeTableId), { stoppedAt: stoppedTime.toUTCString() })
-        .then(res => {
-            console.log(res);
-            if (res.data.success) {
-                console.log(res.data.total_time);
-                totalTime.value = res.data.total_time;
-            }
 
-        })
-        .catch(function (error) {
-            //toaster.error(error);
-        });
-
-}
 
 const viewProject = () => {
     router.get(route('project.show', props.project.id))
@@ -264,11 +275,26 @@ const deleteModal = () => {
     confirmingDeletion.value = true;
 };
 const deleteProject = () => {
+
+
+    axios.delete(route('project.destroy', props.project.id))
+        .then(res => {
+            
+            if (res.data.success) {
+                emit('delete:project',props.index);
+                closeDeleteModal()
+            }
+
+        })
+        .catch(function (error) {
+            //toaster.error(error);
+        });
+/*
     formDelete.delete(route('project.destroy', props.project.id), {
         preserveScroll: true,
-        onSuccess: () => { emit('delete:project'); closeDeleteModal() },
+        onSuccess: () => { emit('delete:project'); closeDeleteModal(),{preserveState:true} },
         onError: () => deleteNameInput.value.focus()
-    });
+    });*/
 };
 const closeDeleteModal = () => {
     confirmingDeletion.value = false;
@@ -298,7 +324,9 @@ const updateProject = () => {
         .put(route('project.update', props.project.id), {
             preserveScroll: true,
             onSuccess: () => {
-                setData();
+                router.reload({ preserveState: false });
+                /*console.log('success',props.project.total_time);
+                setData();*/
             },
             onError: () => editNameInput.value.focus(),
             onFinish: () => form.reset(),

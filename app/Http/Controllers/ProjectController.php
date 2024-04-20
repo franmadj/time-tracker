@@ -35,7 +35,13 @@ class ProjectController extends Controller
     public function store(StoreProjectRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-        Project::create($validated);
+        $project = Project::where('client_id', $validated['client_id'])->orderBy('order', 'DESC')->first();
+        $validated['order'] = $project ? $project->order + 1 : 0;
+        $project = Project::create($validated);
+
+        $project->client->active_projects = $project->client->projects->count();
+        $project->client->save();
+
         return Redirect::route('client.show', $request->client_slug);
     }
 
@@ -71,7 +77,17 @@ class ProjectController extends Controller
     {
         $date = new Carbon($request->startedAt);
         //dd($date->toDateTimeString());
+
+        if (!$project->client->period_from) {
+            $project->client->period_from = $date->toDateTimeString();
+            $project->client->save();
+        }
+        if (!$project->period_from) {
+            $project->period_from = $date->toDateTimeString();
+            $project->save();
+        }
         $timeTable = $project->times()->create(['started_at' => $date->toDateTimeString()]);
+
         return response(['success' => true, 'id' => $timeTable->id]);
     }
 
@@ -96,7 +112,7 @@ class ProjectController extends Controller
             $project->time_started = (new Carbon($project->times->last()->started_at))->addHours(2)->toDateTimeString();
             $project->time_id = $project->times->last()->id;
         }
-        return Inertia::render('Dashboard/Project', [
+        return Inertia::render('Dashboard/TimeTable', [
             'project' => $project,
             'client' => $project->client,
         ]);
@@ -118,6 +134,7 @@ class ProjectController extends Controller
         $validated = $request->validated();
         $project->update($validated);
         $project->setTotalTime();
+        $project->client->setTotalTime();
         return Redirect::route('client.show', $request->client_slug);
     }
 
@@ -127,6 +144,11 @@ class ProjectController extends Controller
     public function destroy(Project $project)
     {
         $project->delete();
+
+        $project->client->active_projects = $project->client->projects->count();
+        $project->client->save();
+        return response(['success' => true]);
+
         return Redirect::route('client.show', $project->client->slug);
     }
 }

@@ -39,15 +39,15 @@
 
                     <div class="flex flex-wrap justify-between gap-5">
 
-                        <div v-for="(project, index) of projects" :key="index" :draggable="true"
-                            @click="viewProject(project.id)" @dragstart="handleDragStart(index)"
-                            @dragover="handleDragOver" @drop="handleDrop(index)"
+                        <div v-for="(project, index) of projectList" :key="index" :draggable="true"
+                            @click="viewProject(project.id)" @dragstart="handleDragStart(index)" v-show="project.show && !project.deleted"
+                            @dragover="handleDragOver" @drop="handleDrop(index)" :style="'order:' + project.order"
                             class="p-3 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-[360px] rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
-                            <ProjectCard :project="project" :client="client" @delete:project="deleteProject" />
+                            <ProjectCard :project="project" :client="client" @delete:project="deleteProject" :index="index" />
                         </div>
 
                         <div
-                            class="p-4 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded flex justify-center items-center shadow-2xl">
+                            class="p-4 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded flex justify-center items-center shadow-2xl order-[999999]">
                             <svg class="cursor-pointer w-20 h-20 opacity-50" @click="newProject"
                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                                 <path
@@ -88,7 +88,7 @@
                                 <InputError :message="form.errors.hourly_rate" class="mt-2" />
                             </div>
                             <div class="mt-6 flex justify-end">
-                                <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+                                <SecondaryButton @click="closeModal"> Close </SecondaryButton>
                                 <SaveButton class="ms-3" :class="{ 'opacity-25': form.processing }"
                                     :disabled="form.processing" @click="storeProject">
                                     Save
@@ -182,14 +182,26 @@ const props = defineProps({
     },
 });
 
+const projectList = computed(() => props.projects);
+
 onMounted(() => {
     console.log('props', props);
     console.log(searchInput);
-    projects.value = props.projects;
+    //projects.value = props.projects;
+    showList();
+    
 });
 
+const showList=()=>{
+    projectList.value.forEach((project, index) => {
+        projectList.value[index].show = true;
+
+    });
+
+}
+
 const calculateDisabled = computed(() => {
-    return !projects.value.filter((project) => {
+    return !projectList.value.filter((project) => {
         return project.selected
     }).length;
 
@@ -203,21 +215,16 @@ let timeout = 0;
 const searchProject = (e) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
-        formSearch
-            .get(route('client.show', [props.client.slug]), {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setTimeout(() => {
-                        //console.log(searchInput);
-                    }, 2000);
+        projectList.value.forEach((project, index) => {
+       
+            if (project.name.toLowerCase().includes(formSearch.term.toLowerCase()))
+                projectList.value[index].show = true;
+            else
+                projectList.value[index].show = false;
 
+        });
 
-                    //nextTick(() => {console.log(searchInput);searchInput.value.focus()});
-
-                },
-
-
-            });
+        
 
     }, 500);
 
@@ -228,18 +235,19 @@ const searchProject = (e) => {
 const doSelectAll = () => {
     setTimeout(() => {
         console.log(selectAll.value)
-        projects.value = projects.value.map((project) => {
+        projects = projectList.value.map((project) => {
             project.selected = selectAll.value;
             return project;
 
         });
-        console.log(projects.value);
+        console.log(projects);
     }, 100)
 
 }
 
-const deleteProject = () => {
-    projects.value = props.projects;
+const deleteProject = (index) => {
+    projectList.value[index].deleted=true
+    //projectList.value = props.projects;
     //router.reload({ only: ['projects'] })
 }
 
@@ -255,41 +263,44 @@ const makeTimeClock = (totalSeconds) => {
 }
 
 const calculateEarnings = (project) => {
-
     return parseFloat(((project.total_time / 60) / 60) * project.hourly_rate).toFixed(2);
 }
 
 const viewProject = (id) => {
-
     router.get(route('project.show', id))
 }
 
 
 
-/************DRAG & DROP*********/
+/************DRAG & DROP********/
 /*******************************/
 /*******************************/
 /*******************************/
 const draggedItem = ref(null);
-
 const handleDragStart = (index) => {
+    console.log('drag', index);
     draggedItem.value = index;
 }
-
 const handleDragOver = (event) => {
     event.preventDefault();
 }
-
 const handleDrop = (index) => {
-    console.log(props.projects);
-    const droppedItem = projects.value.splice(draggedItem.value, 1)[0];
-    projects.value.splice(index, 0, droppedItem);
-    draggedItem.value = null;
+    console.log('drop', index);
+
+    projectList.value[draggedItem.value].order = index
+
+    projectList.value.forEach((element, key) => {
+        if (draggedItem.value == key)
+            return;
+        projectList.value[key].order = key;
+        if (element.order >= index)
+            projectList.value[key].order = key + 1;
+    });
+
+
     let projectsOrder = [];
-    let order = 0;
-    projects.value.forEach(element => {
-        projectsOrder.push({ 'id': element.id, 'order': order });
-        order++;
+    projectList.value.forEach(element => {
+        projectsOrder.push({ 'id': element.id, 'order': element.order, 'name': element.name });
     });
 
     console.log(projectsOrder)
@@ -309,6 +320,10 @@ const handleDrop = (index) => {
 }
 
 
+/************CREATE PROJECT*****/
+/*******************************/
+/*******************************/
+/*******************************/
 const form = useForm({
     client_id: props.client.id,
     client_slug: props.client.slug,
@@ -316,24 +331,21 @@ const form = useForm({
     hourly_rate: String(props.client.hourly_rate),
     notes: '',
 });
-
 const newProject = () => {
     console.log('d');
     creatingNewProject.value = true;
     nextTick(() => projectNameInput.value.focus());
 };
-
 const storeProject = () => {
     console.log(form);
     form
         .post(route('project.store'), {
             preserveScroll: true,
-            onSuccess: () => { projects.value = props.projects; closeModal() },
+            onSuccess: () => { closeModal(); nextTick(()=>showList()) },
             onError: () => projectNameInput.value.focus()
 
         });
 };
-
 const closeModal = () => {
     creatingNewProject.value = false;
     form.reset();
@@ -343,7 +355,7 @@ const closeModal = () => {
 const totalTimeSum = ref(0);
 const totalEarningsSum = ref(0);
 const calculate = () => {
-    selectedProjects.value = projects.value.filter((project) => {
+    selectedProjects.value = projectList.value.filter((project) => {
         return project.selected;
     });
 
@@ -363,7 +375,6 @@ const calculate = () => {
     console.log(selectedProjects.value);
     calculating.value = true;
 };
-
 const closeCalculateModal = () => {
     calculating.value = false;
 };

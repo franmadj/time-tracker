@@ -10,6 +10,7 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -67,35 +68,13 @@ class ClientController extends Controller
             return $project;
         });
 
-        return Inertia::render('Dashboard/ClientProjects', [
+        return Inertia::render('Dashboard/Projects', [
             'projects' => $projects,
             'client' => $client,
             'searchTerm' => $term,
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function search(Client $client, string $term)
-    {
-        $projects = $client->projects()->with('times')->orderBy('order', 'ASC');
-        if (strlen($term)) {
-            $projects = $projects->where('name', 'like', '%' . $term . '%');
-        }
-
-        $projects = $projects->get()->map(function (Model $project, int $key) {
-            $project->time_started = false;
-            if ($project->times->count() && !$project->times->last()->ended_at) {
-                $project->time_started = (new Carbon($project->times->last()->started_at))->addHours(2)->toDateTimeString();
-                $project->time_id = $project->times->last()->id;
-            }
-            return $project;
-        });
-
-        return response(['projects' => $projects]);
-
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -120,7 +99,7 @@ class ClientController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function setOrder(Request $request): ResponseFactory
+    public function setOrder(Request $request): HttpResponse
     {
         foreach ($request->clientsOrder as $clientOrder) {
             if ($client = Client::find($clientOrder['id'])) {
