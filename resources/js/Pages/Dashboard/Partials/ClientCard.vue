@@ -17,7 +17,7 @@
         <h2 class="text-white font-bold mb-2">{{ client.name }}</h2>
         <p v-show="client.period_from" class="mb-1">Prdiod from: {{ client.period_from }}</p>
         <p v-show="client.active_projects" class="mb-1">Active Projects: {{ client.active_projects }}</p>
-        <p v-show="client.total_time" class="mb-1">Total time: {{ makeTimeClock(client.total_time) }}</p>
+        <p v-show="client.total_time" class="mb-1">Total time: {{ helpers.makeTimeClock(client.total_time) }}</p>
         <p v-show="client.earnings" class="mb-1">Earnings: {{ client.currency }}{{ client.earnings }}</p>
         <p class="mb-1">Prioroty:
             <span @click.stop="setPrioroty('high')" class="cursor-pointer"
@@ -58,6 +58,15 @@
                         placeholder="Hourly Rate" @keyup.enter="updateClient" />
                 </div>
                 <InputError :message="form.errors.hourly_rate" class="mt-2" />
+            </div>
+            <div class="mt-6">
+                <InputLabel for="hourly_rate_two" value="hourly rate two" class="sr-only" />
+                <div class="relative w-3/4">
+                    <span class="absolute right-2 top-[9px]">{{ form.currency }} / Hour</span>
+                    <TextInput id="hourly_rate_two" v-model="form.hourly_rate_two" type="text" class="mt-1 block w-3/4"
+                        placeholder="Second Hourly Rate" @keyup.enter="updateClient" />
+                </div>
+                <InputError :message="form.errors.hourly_rate_two" class="mt-2" />
             </div>
 
             <div class="mt-6">
@@ -100,8 +109,8 @@
             <div class="mt-6 flex justify-end">
                 <SecondaryButton @click="closeDeleteModal"> Cancel </SecondaryButton>
 
-                <DangerButton class="ms-3" :class="{ 'opacity-25': formDelete.processing }" :disabled="formDelete.processing"
-                    @click="deleteClient">
+                <DangerButton class="ms-3" :class="{ 'opacity-25': formDelete.processing }"
+                    :disabled="formDelete.processing" @click="deleteClient">
                     Delete Client
                 </DangerButton>
             </div>
@@ -119,6 +128,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { ColorPicker } from 'vue-accessible-color-picker'
+import helpers from '../../../Composables/helpers'
 import { nextTick, ref, defineProps, onMounted } from 'vue';
 
 
@@ -140,16 +150,7 @@ onMounted(() => {
     console.log('onmounted');
 })
 
-const makeTimeClock = (totalSeconds) => {
-    let clockHours = Math.floor(totalSeconds / (60 * 60));
-    let clockMinutes = Math.floor((totalSeconds % (60 * 60)) / (60));
-    let clockSeconds = Math.floor((totalSeconds % (60)) / 1);
-    clockHours = (clockHours < 10 ? "0" : "") + clockHours;
-    clockMinutes = (clockMinutes < 10 ? "0" : "") + clockMinutes;
-    clockSeconds = (clockSeconds < 10 ? "0" : "") + clockSeconds;
-    return (clockHours + ':' + clockMinutes + ':' + clockSeconds);
 
-}
 
 
 /************EDIT MODAL***********/
@@ -162,6 +163,7 @@ const editModal = () => {
     form = useForm({
         name: props.client.name,
         hourly_rate: String(props.client.hourly_rate),
+        hourly_rate_two: String(props.client.hourly_rate_two),
         currency: props.client.currency
     });
     color.value = props.client.color;

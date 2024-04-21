@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('order')->default(0);
             $table->enum('prioroty', ['high', 'middle', 'low'])->default('low');
             $table->unsignedSmallInteger('hourly_rate')->default(100);
+            $table->unsignedSmallInteger('hourly_rate_two')->nullable();
             $table->dateTime('period_from')->nullable();
             $table->dateTime('ended_at')->nullable();
             $table->unsignedMediumInteger('total_time')->nullable();

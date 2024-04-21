@@ -22,7 +22,7 @@
                                     class="grow-0 inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                                     Calculate</button>
                                 <InputLabel for="name" value="name" class="sr-only" />
-                                <TextInput id="name" ref="searchInput" @keyup="searchProject" v-model="formSearch.term"
+                                <TextInput id="name" ref="searchInput" @keyup="searchProject" v-model="searchTerm"
                                     type="text" class="grow" placeholder="Search by Project Name" />
                         </div>
                         <h1>{{ client.name }}</h1>
@@ -40,10 +40,12 @@
                     <div class="flex flex-wrap justify-between gap-5">
 
                         <div v-for="(project, index) of projectList" :key="index" :draggable="true"
-                            @click="viewProject(project.id)" @dragstart="handleDragStart(index)" v-show="project.show && !project.deleted"
-                            @dragover="handleDragOver" @drop="handleDrop(index)" :style="'order:' + project.order"
+                            @click="viewProject(project.id)" @dragstart="handleDragStart(index)"
+                            v-show="project.show && !project.deleted" @dragover="handleDragOver"
+                            @drop="handleDrop(index)" :style="'order:' + project.order"
                             class="p-3 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-[360px] rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
-                            <ProjectCard :project="project" :client="client" @delete:project="deleteProject" :index="index" />
+                            <ProjectCard :project="project" :client="client" @delete:project="deleteProject"
+                                @update:project="updateProject" :index="index" />
                         </div>
 
                         <div
@@ -87,6 +89,16 @@
                                 </div>
                                 <InputError :message="form.errors.hourly_rate" class="mt-2" />
                             </div>
+                            <div class="mt-6">
+                                <InputLabel for="hourly_rate_two" value="hourly rate two" class="sr-only" />
+                                <div class="relative w-3/4">
+                                    <span class="absolute right-2 top-[9px]">{{ props.client.currency }} / Hour</span>
+                                    <TextInput id="hourly_rate_two" v-model="form.hourly_rate_two" type="text"
+                                        class="mt-1 block w-3/4" placeholder="Second Hourly Rate"
+                                        @keyup.enter="storeProject" />
+                                </div>
+                                <InputError :message="form.errors.hourly_rate_two" class="mt-2" />
+                            </div>
                             <div class="mt-6 flex justify-end">
                                 <SecondaryButton @click="closeModal"> Close </SecondaryButton>
                                 <SaveButton class="ms-3" :class="{ 'opacity-25': form.processing }"
@@ -97,12 +109,29 @@
                         </div>
                     </Modal>
 
-                    <Modal :show="calculating" @close="closeCalculateModal">
+                    <Modal :show="calculating" @close="closeCalculateModal" maxWidth="screenlg">
                         <div class="p-6">
-                            <h2 class="text-lg font-medium text-gray-900 mb-2">
-                                Calculations
-                            </h2>
-                            <table class="w-full">
+                            <div class="flex justify-between items-center gap-2 mb-5">
+                                <h2 class="text-xl font-bold text-gray-900">
+                                    Reports
+                                </h2>
+                                <InputLabel for="name" value="name" class="sr-only" />
+                                <TextInput id="name" ref="hourlyRate" @keyup="calculateHourlyRate" v-model="hourlyRate"
+                                    type="text" class="grow" placeholder="Hourly Rate" />
+
+                                <div class="flex gap-1 justify-between items-center">
+                                    <button type="button" :disabled="tableReportDisabled"
+                                        @click="tableReportDisabled = true; textReportDisabled = false;"
+                                        class="grow-0 inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                                        Table</button>
+                                    <button type="button" :disabled="textReportDisabled"
+                                        @click="tableReportDisabled = false; textReportDisabled = true;"
+                                        class="grow-0 inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                                        Text</button>
+
+                                </div>
+                            </div>
+                            <table class="w-full" v-show="tableReportDisabled">
                                 <tr>
                                     <th>Name</th>
                                     <th>Time</th>
@@ -111,16 +140,16 @@
                                 <tr v-for="(selectedProject, index) in selectedProjects" :key="index">
                                     <td
                                         class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">
-                                        {{
-                                            selectedProject.name }}</td>
+                                        {{ selectedProject.name }}
+                                    </td>
                                     <td
                                         class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">
-                                        {{
-                                            makeTimeClock(selectedProject.total_time) }}</td>
+                                        {{ helpers.makeTimeClock(selectedProject.total_time) }}</td>
                                     <td
                                         class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">
-                                        {{
-                                            calculateEarnings(selectedProject) }}
+                                        {{ calculateEarnings(selectedProject) }} {{ client.currency }}
+                                        <span v-show="calculateEarnings(selectedProject, true) > 0"> / {{
+                                            calculateEarnings(selectedProject, true) }} {{ client.currency }}</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -134,10 +163,24 @@
                                     <td
                                         class="text-center px-5 py-1 text-lg font-bold bg-gray-200 border border-b-white">
                                         {{ totalEarningsSum }}
+                                        <span v-show="totalEarningsSumTwo > 0"> / {{ totalEarningsSumTwo }} {{
+                                            client.currency
+                                        }}</span>
                                     </td>
                                 </tr>
 
                             </table>
+                            <div v-show="textReportDisabled">
+                                <div v-for="(selectedProject, index) in selectedProjects" :key="index" class="mb-5">
+                                    <p class="text-xl">{{ selectedProject.name }}</p>
+                                    <p>{{ helpers.makeTimeClock(selectedProject.total_time) }}</p>
+                                    <p>{{ calculateEarnings(selectedProject) }}
+                                        <span v-show="calculateEarnings(selectedProject, true) > 0"> / {{
+                                            calculateEarnings(selectedProject, true) }} {{ client.currency }}</span>
+                                    </p>
+                                </div>
+
+                            </div>
 
 
                         </div>
@@ -158,16 +201,17 @@ import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import ProjectCard from './Partials/ProjectCard.vue';
+import helpers from '../../Composables/helpers'
 import { nextTick, ref, defineProps, onMounted, computed } from 'vue';
 
 const creatingNewProject = ref(false);
 const projectNameInput = ref(null);
 const searchInput = ref(null);
-const projects = ref([]);
 const selectedProjects = ref([]);
 const selectAll = ref(false);
 const calculating = ref(false);
-//const searchProject = ref('');
+const tableReportDisabled = ref(true);
+const textReportDisabled = ref(false);
 
 
 const props = defineProps({
@@ -185,14 +229,10 @@ const props = defineProps({
 const projectList = computed(() => props.projects);
 
 onMounted(() => {
-    console.log('props', props);
-    console.log(searchInput);
-    //projects.value = props.projects;
     showList();
-    
 });
 
-const showList=()=>{
+const showList = () => {
     projectList.value.forEach((project, index) => {
         projectList.value[index].show = true;
 
@@ -200,71 +240,39 @@ const showList=()=>{
 
 }
 
-const calculateDisabled = computed(() => {
-    return !projectList.value.filter((project) => {
-        return project.selected
-    }).length;
-
-});
 
 
-const formSearch = useForm({
-    term: props.searchTerm
-});
+
+const searchTerm = ref('');
 let timeout = 0;
 const searchProject = (e) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
         projectList.value.forEach((project, index) => {
-       
-            if (project.name.toLowerCase().includes(formSearch.term.toLowerCase()))
+            if (project.name.toLowerCase().includes(searchTerm.value.toLowerCase()))
                 projectList.value[index].show = true;
             else
                 projectList.value[index].show = false;
-
         });
-
-        
-
     }, 500);
-
-
 }
-
 
 const doSelectAll = () => {
     setTimeout(() => {
-        console.log(selectAll.value)
-        projects = projectList.value.map((project) => {
-            project.selected = selectAll.value;
-            return project;
-
+        projectList.value.forEach((project, index) => {
+            projectList.value[index].selected = selectAll.value;
         });
-        console.log(projects);
     }, 100)
-
 }
 
 const deleteProject = (index) => {
-    projectList.value[index].deleted=true
-    //projectList.value = props.projects;
-    //router.reload({ only: ['projects'] })
+    projectList.value[index].deleted = true
 }
 
-const makeTimeClock = (totalSeconds) => {
-    let clockHours = Math.floor(totalSeconds / (60 * 60));
-    let clockMinutes = Math.floor((totalSeconds % (60 * 60)) / (60));
-    let clockSeconds = Math.floor((totalSeconds % (60)) / 1);
-    clockHours = (clockHours < 10 ? "0" : "") + clockHours;
-    clockMinutes = (clockMinutes < 10 ? "0" : "") + clockMinutes;
-    clockSeconds = (clockSeconds < 10 ? "0" : "") + clockSeconds;
-    return (clockHours + ':' + clockMinutes + ':' + clockSeconds);
-
+const updateProject = () => {
+    nextTick(() => showList());
 }
 
-const calculateEarnings = (project) => {
-    return parseFloat(((project.total_time / 60) / 60) * project.hourly_rate).toFixed(2);
-}
 
 const viewProject = (id) => {
     router.get(route('project.show', id))
@@ -276,39 +284,28 @@ const viewProject = (id) => {
 /*******************************/
 /*******************************/
 /*******************************/
-const draggedItem = ref(null);
+const draggedItemIndex = ref(null);
 const handleDragStart = (index) => {
-    console.log('drag', index);
-    draggedItem.value = index;
+    draggedItemIndex.value = index;
 }
 const handleDragOver = (event) => {
     event.preventDefault();
 }
-const handleDrop = (index) => {
-    console.log('drop', index);
+const handleDrop = (dropItemIndex) => {
+    const dragOrder=projectList.value[draggedItemIndex.value].order;
+    const droppedOrder=projectList.value[dropItemIndex].order;
 
-    projectList.value[draggedItem.value].order = index
-
-    projectList.value.forEach((element, key) => {
-        if (draggedItem.value == key)
-            return;
-        projectList.value[key].order = key;
-        if (element.order >= index)
-            projectList.value[key].order = key + 1;
-    });
-
+    projectList.value[draggedItemIndex.value].order=droppedOrder;
+    projectList.value[dropItemIndex].order=dragOrder;
 
     let projectsOrder = [];
     projectList.value.forEach(element => {
         projectsOrder.push({ 'id': element.id, 'order': element.order, 'name': element.name });
     });
 
-    console.log(projectsOrder)
-
     axios.patch(route('project.ordering'), { projectsOrder })
         .then(res => {
             if (res.data.success) {
-
 
             } else {
                 //toaster.error(`Error`);
@@ -329,10 +326,10 @@ const form = useForm({
     client_slug: props.client.slug,
     name: '',
     hourly_rate: String(props.client.hourly_rate),
+    hourly_rate_two: String(props.client.hourly_rate_two),
     notes: '',
 });
 const newProject = () => {
-    console.log('d');
     creatingNewProject.value = true;
     nextTick(() => projectNameInput.value.focus());
 };
@@ -341,7 +338,7 @@ const storeProject = () => {
     form
         .post(route('project.store'), {
             preserveScroll: true,
-            onSuccess: () => { closeModal(); nextTick(()=>showList()) },
+            onSuccess: () => { closeModal(); nextTick(() => showList()) },
             onError: () => projectNameInput.value.focus()
 
         });
@@ -352,26 +349,45 @@ const closeModal = () => {
 };
 
 
+
+/*********CALCULATE PROJECT*****/
+/*******************************/
+/*******************************/
+/*******************************/
 const totalTimeSum = ref(0);
 const totalEarningsSum = ref(0);
+const totalEarningsSumTwo = ref(0);
+
+const calculateEarnings = (project, two = false) => {
+    let hourlyRate = two ? project.hourly_rate_two : project.hourly_rate;
+    return parseFloat(((project.total_time / 60) / 60) * hourlyRate).toFixed(2);
+}
+
+const calculateDisabled = computed(() => {
+    return !projectList.value.filter((project) => {
+        return project.selected
+    }).length;
+
+});
+
 const calculate = () => {
     selectedProjects.value = projectList.value.filter((project) => {
         return project.selected;
     });
 
     let totalEarnings = 0;
+    let totalEarningsTwo = 0;
 
     const totalSeconds = selectedProjects.value.reduce((total, project) => {
         totalEarnings += parseFloat(calculateEarnings(project));
+        totalEarningsTwo += parseFloat(calculateEarnings(project, true));
         console.log(totalEarnings);
         return total + project.total_time;
     }, 0);
 
-
-
-
-    totalTimeSum.value = makeTimeClock(totalSeconds)
-    totalEarningsSum.value = totalEarnings;
+    totalTimeSum.value = helpers.makeTimeClock(totalSeconds)
+    totalEarningsSum.value = totalEarnings.toFixed(2);
+    totalEarningsSumTwo.value = totalEarningsTwo.toFixed(2);
     console.log(selectedProjects.value);
     calculating.value = true;
 };

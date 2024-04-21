@@ -25,6 +25,7 @@ class StoreProjectRequest extends FormRequest
             'client_id'=>'required|exists:clients,id',
             'name' => 'required|unique:projects,name|max:255',
             'hourly_rate' => 'required|numeric',
+            'hourly_rate_two' => 'nullable|numeric',
             'notes' => 'required|max:255',
 
         ];

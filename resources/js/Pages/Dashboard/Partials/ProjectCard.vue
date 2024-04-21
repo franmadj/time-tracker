@@ -24,7 +24,8 @@
 
         <div class="flex">
             <div class="f w-[224px]">
-                <p v-show="project.period_from" class="mb-1">Prdiod from: <span class="block">{{ project.period_from }}</span></p>
+                <p v-show="project.period_from" class="mb-1">Prdiod from: <span class="block">{{ project.period_from
+                        }}</span></p>
                 <p v-show="project.ended_at" class="mb-1">Ended At: {{ project.ended_at }}</p>
                 <p v-show="totalTimeDisplay" class="mb-1">Total time: <span class="">{{ totalTimeDisplay }}</span></p>
                 <p v-show="project.earnings" class="mb-1 underline cursor-pointer">Time Table</p>
@@ -91,6 +92,15 @@
                 <InputError :message="form.errors.hourly_rate" class="mt-2" />
             </div>
             <div class="mt-6">
+                <InputLabel for="hourly_rate_two" value="hourly rate two" class="sr-only" />
+                <div class="relative w-3/4">
+                    <span class="absolute right-2 top-[9px]">{{ props.client.currency }} / Hour</span>
+                    <TextInput id="hourly_rate_two" v-model="form.hourly_rate_two" type="text" class="mt-1 block w-3/4"
+                        placeholder="Second Hourly Rate" @keyup.enter="updateProject" />
+                </div>
+                <InputError :message="form.errors.hourly_rate_two" class="mt-2" />
+            </div>
+            <div class="mt-6">
                 <InputLabel for="extra_time" value="extra_time" class="sr-only" />
                 <div class="flex gap-2 items-center w-3/4">
 
@@ -142,7 +152,6 @@ import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { nextTick, ref, defineProps, onMounted, computed } from 'vue';
 
-
 const props = defineProps({
     project: {
         type: Object,
@@ -164,9 +173,7 @@ let runTimeInterval = 1;
 let currentTimeTableId = 0;
 const totalTime = ref(false);
 
-const emit = defineEmits(['delete:project']) // must emits
-
-
+const emit = defineEmits(['delete:project','update:project']) // must emits
 
 onMounted(() => {
     console.log('project', props.project);
@@ -182,8 +189,6 @@ const totalTimeDisplay = computed(() => {
 })
 
 const setData = () => {
-
-    console.log('set data', props.project.total_time);
     if (props.project.time_started) {
         playButton(true);
     }
@@ -256,8 +261,6 @@ const formatDigitalClock = (totalSeconds) => {
 
 }
 
-
-
 const viewProject = () => {
     router.get(route('project.show', props.project.id))
 }
@@ -275,26 +278,16 @@ const deleteModal = () => {
     confirmingDeletion.value = true;
 };
 const deleteProject = () => {
-
-
     axios.delete(route('project.destroy', props.project.id))
         .then(res => {
-            
+
             if (res.data.success) {
-                emit('delete:project',props.index);
+                emit('delete:project', props.index);
                 closeDeleteModal()
             }
-
         })
         .catch(function (error) {
-            //toaster.error(error);
         });
-/*
-    formDelete.delete(route('project.destroy', props.project.id), {
-        preserveScroll: true,
-        onSuccess: () => { emit('delete:project'); closeDeleteModal(),{preserveState:true} },
-        onError: () => deleteNameInput.value.focus()
-    });*/
 };
 const closeDeleteModal = () => {
     confirmingDeletion.value = false;
@@ -312,6 +305,7 @@ const editModal = () => {
     form = useForm({
         name: props.project.name,
         hourly_rate: String(props.project.hourly_rate),
+        hourly_rate_two: String(props.project.hourly_rate_two),
         notes: props.project.notes,
         extra_time: props.project.extra_time,
         client_slug: props.client.slug
@@ -324,12 +318,9 @@ const updateProject = () => {
         .put(route('project.update', props.project.id), {
             preserveScroll: true,
             onSuccess: () => {
-                router.reload({ preserveState: false });
-                /*console.log('success',props.project.total_time);
-                setData();*/
+                emit('update:project');
             },
-            onError: () => editNameInput.value.focus(),
-            onFinish: () => form.reset(),
+            onError: () => {editNameInput.value.focus(),emit('update:project');}
 
         });
 };
@@ -337,10 +328,6 @@ const closeEditModal = () => {
     confirmingEdition.value = false;
     form.reset();
 };
-
-
-
-
 
 
 

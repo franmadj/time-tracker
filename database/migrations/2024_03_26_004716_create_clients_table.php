@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('prioroty', ['high', 'middle', 'low'])->default('low');
             $table->enum('currency', ['$', '€'])->default('$');
             $table->unsignedSmallInteger('hourly_rate')->default(100);
+            $table->unsignedSmallInteger('hourly_rate_two')->nullable();
             $table->string('color')->default('#ccc');
             $table->dateTime('period_from')->nullable();
             $table->unsignedSmallInteger('active_projects')->nullable();

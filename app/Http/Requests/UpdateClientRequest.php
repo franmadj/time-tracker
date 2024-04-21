@@ -25,6 +25,7 @@ class UpdateClientRequest extends FormRequest
             'name' => 'required|unique:clients,name,'.$this->client->id.'|max:255',
             'currency' => 'required|in:$,€',
             'hourly_rate' => 'required|numeric',
+            'hourly_rate_two' => 'nullable|numeric',
             'color' => 'required|max:15',
         ];
     }

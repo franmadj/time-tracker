@@ -19,9 +19,6 @@
                         <ClientCard :client="client" />
                     </div>
 
-
-
-
                     <div
                         class="p-4 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded flex justify-center items-center shadow-2xl">
                         <svg class="cursor-pointer w-20 h-20 opacity-50" @click="newClient"
@@ -61,6 +58,15 @@
                                         class="mt-1 block w-3/4" placeholder="Hourly Rate" @keyup.enter="storeClient" />
                                 </div>
                                 <InputError :message="form.errors.hourly_rate" class="mt-2" />
+                            </div>
+                            <div class="mt-6">
+                                <InputLabel for="hourly_rate_two" value="hourly rate two" class="sr-only" />
+                                <div class="relative w-3/4">
+                                    <span class="absolute right-2 top-[9px]">{{ form.currency }} / Hour</span>
+                                    <TextInput id="hourly_rate_two" v-model="form.hourly_rate_two" type="text"
+                                        class="mt-1 block w-3/4" placeholder="Second Hourly Rate" @keyup.enter="storeClient" />
+                                </div>
+                                <InputError :message="form.errors.hourly_rate_two" class="mt-2" />
                             </div>
 
                             <div class="mt-6">
@@ -102,7 +108,7 @@ import { nextTick, ref, defineProps, computed } from 'vue';
 
 const creatingNewClient = ref(false);
 const clientNameInput = ref(null);
-const color = '#ccc';
+let color = '#ccc';
 
 const props = defineProps({
     clients: {
@@ -161,6 +167,7 @@ const handleDrop = (index) => {
 const form = useForm({
     name: '',
     hourly_rate: '25',
+    hourly_rate_two: '',
     currency: '$',
 });
 

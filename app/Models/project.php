@@ -11,7 +11,7 @@ class Project extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'client_id', 'notes', 'hourly_rate', 'prioroty', 'period_from', 'total_time', 'ended_at', 'order', 'selected', 'extra_time'];
+    protected $fillable = ['name', 'client_id', 'notes', 'hourly_rate', 'hourly_rate_two', 'prioroty', 'period_from', 'total_time', 'ended_at', 'order', 'selected', 'extra_time'];
 
     public function client()
     {
@@ -24,6 +24,14 @@ class Project extends Model
     }
 
     protected function hourlyRate(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value / 100,
+            set: fn($value) => $value * 100
+        );
+    }
+
+    protected function hourlyRateTwo(): Attribute
     {
         return Attribute::make(
             get: fn($value) => $value / 100,
