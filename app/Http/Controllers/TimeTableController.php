@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\timeTable;
+use App\Models\TimeTable;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -13,7 +13,7 @@ class TimeTableController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function startTime(Request $request, timeTable $timeTable)
+    public function startTime(Request $request, TimeTable $timeTable)
     {
         $date = new Carbon($request->startedAt);
         //dd($date->toDateTimeString());
@@ -24,7 +24,7 @@ class TimeTableController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function stopTime(Request $request, timeTable $timeTable)
+    public function stopTime(Request $request, TimeTable $timeTable)
     {
         $date = new Carbon($request->stoppedAt);
         //dd($date->toDateTimeString());
@@ -47,7 +47,7 @@ class TimeTableController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(timeTable $timeTable)
+    public function destroy(TimeTable $timeTable)
     {
         $timeTable->delete();
         $timeTable->project->setTotalTime();
