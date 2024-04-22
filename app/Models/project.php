@@ -20,7 +20,7 @@ class Project extends Model
 
     public function times()
     {
-        return $this->hasMany(timeTable::class);
+        return $this->hasMany(TimeTable::class);
     }
 
     protected function hourlyRate(): Attribute
