@@ -319,6 +319,7 @@ const updateProject = () => {
             preserveScroll: true,
             onSuccess: () => {
                 emit('update:project');
+                closeEditModal();
             },
             onError: () => {editNameInput.value.focus(),emit('update:project');}
 
