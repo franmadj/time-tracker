@@ -53,7 +53,6 @@ Route::middleware('auth')->group(function () {
         Route::patch('/ordering', [ProjectController::class, 'setOrder'])->name('ordering');
         Route::delete('{project}', [ProjectController::class, 'destroy'])->name('destroy');
         Route::post('start-time/{project}', [ProjectController::class, 'startTime'])->name('startTime');
-        Route::post('stop-time/{project}', [ProjectController::class, 'stopTime'])->name('stopTime');
     });
 
     Route::group([

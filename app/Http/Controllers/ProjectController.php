@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
+use App\Models\TimeTable;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -76,7 +77,6 @@ class ProjectController extends Controller
     public function startTime(Request $request, Project $project)
     {
         $date = new Carbon($request->startedAt);
-        //dd($date->toDateTimeString());
 
         if (!$project->client->period_from) {
             $project->client->period_from = $date->toDateTimeString();
@@ -88,17 +88,6 @@ class ProjectController extends Controller
         }
         $timeTable = $project->times()->create(['started_at' => $date->toDateTimeString()]);
 
-        return response(['success' => true, 'id' => $timeTable->id]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function stopTime(Request $request, Project $project)
-    {
-        $date = new Carbon($request->stoppedAt);
-        //dd($date->toDateTimeString());
-        $timeTable = $project->times()->create(['started_at' => $date->toDateTimeString()]);
         return response(['success' => true, 'id' => $timeTable->id]);
     }
 
@@ -116,14 +105,6 @@ class ProjectController extends Controller
             'project' => $project,
             'client' => $project->client,
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Project $project)
-    {
-        //
     }
 
     /**
@@ -145,10 +126,19 @@ class ProjectController extends Controller
     {
         $project->delete();
 
-        $project->client->active_projects = $project->client->projects->count();
-        $project->client->save();
+        $client = $project->client;
+
+        $client->active_projects = $client->projects->count();
+        $client->save();
+
+        $projectsId = $client->projects()->whereNull('ended_at')->pluck('id');
+        
+        $timeTable = TimeTable::whereIn('project_id', $projectsId)->orderBy('created_at', 'ASC')->first();
+        $client->period_from = $timeTable ? $timeTable->started_at : null;
+        $client->save();
+
         return response(['success' => true]);
 
-        return Redirect::route('client.show', $project->client->slug);
+        return Redirect::route('client.show', $client->slug);
     }
 }

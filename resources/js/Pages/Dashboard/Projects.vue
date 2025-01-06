@@ -115,9 +115,7 @@
                                 <h2 class="text-xl font-bold text-gray-900">
                                     Reports
                                 </h2>
-                                <InputLabel for="name" value="name" class="sr-only" />
-                                <TextInput id="name" ref="hourlyRate" @keyup="calculateHourlyRate" v-model="hourlyRate"
-                                    type="text" class="grow" placeholder="Hourly Rate" />
+                                
 
                                 <div class="flex gap-1 justify-between items-center">
                                     <button type="button" :disabled="tableReportDisabled"

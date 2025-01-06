@@ -9,18 +9,6 @@ use Illuminate\Support\Facades\Redirect;
 
 class TimeTableController extends Controller
 {
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function startTime(Request $request, TimeTable $timeTable)
-    {
-        $date = new Carbon($request->startedAt);
-        //dd($date->toDateTimeString());
-        $timeTable = $project->times()->create(['started_at' => $date->toDateTimeString()]);
-        return response(['success' => true, 'id' => $timeTable->id]);
-    }
-
     /**
      * Update the specified resource in storage.
      */
@@ -32,16 +20,6 @@ class TimeTableController extends Controller
         $timeTable->project->setTotalTime();
         $timeTable->project->client->setTotalTime();
         return response(['success' => true, 'id' => $timeTable->id, 'project' => $timeTable->project]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateProjectRequest $request, Project $project)
-    {
-        $validated = $request->validated();
-        $project->update($validated);
-        return Redirect::route('client.show', $request->client_slug);
     }
 
     /**
