@@ -10,7 +10,7 @@ class Client extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'user_id', 'currency', 'hourly_rate', 'hourly_rate_two', 'color', 'prioroty', 'period_from', 'total_time', 'active_projects', 'order', 'slug'];
+    protected $fillable = ['name', 'user_id', 'currency', 'hourly_rate', 'hourly_rate_two', 'color', 'prioroty', 'period_from', 'total_time', 'active_projects', 'order', 'slug', 'notes'];
 
     public function user()
     {

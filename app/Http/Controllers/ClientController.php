@@ -99,6 +99,15 @@ class ClientController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
+    public function updateNotes(Client $client, Request $request)
+    {
+        $client->update($request->notes);
+        return response(['success' => true]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function setOrder(Request $request): HttpResponse
     {
         foreach ($request->clientsOrder as $clientOrder) {

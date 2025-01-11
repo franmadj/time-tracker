@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [ClientController::class, 'store'])->name('store');
         Route::put('{client}', [ClientController::class, 'update'])->name('update');
         Route::patch('{client}/prioroty', [ClientController::class, 'setPriorory'])->name('prioroty');
+        Route::patch('{client}/notes', [ClientController::class, 'updateNotes'])->name('updateNotes');
         Route::patch('/ordering', [ClientController::class, 'setOrder'])->name('ordering');
         Route::delete('{client}', [ClientController::class, 'destroy'])->name('destroy');
     });
