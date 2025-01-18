@@ -356,10 +356,13 @@ const confirmingNotes = ref(false);
 let quillInstance = null; // To store the Quill instance
 const editorContent = ref('hello'); // To store and manage the content
 const editNotesModal = () => {
+
+    formNotes = useForm({
+        notes: editorContent.value
+    });
     
-
     confirmingNotes.value = true;
-
+    
     nextTick(() => {
         if (editorRef.value) {
             quillInstance = new Quill(editorRef.value, {
@@ -382,12 +385,9 @@ const editNotesModal = () => {
 // Function to capture the editor's value
 const saveNotes = () => {
   if (quillInstance) {
-    formNotes = useForm({
-        notes: quillInstance.root.innerHTML
-    });
-
     formNotes.transform((data) => ({
-        ...data
+        ...data,
+        name:quillInstance.root.innerHTML
     })).patch(route("client.updateNotes", props.client.id), {
         preserveScroll: true,
         onSuccess: () => {
@@ -413,7 +413,7 @@ const updateClient_ = () => {
         onFinish: () => form.reset(),
     });
 };
-const closeNotes = () => {
+const closeNotesModal = () => {
     confirmingNotes.value = false;
 };
 

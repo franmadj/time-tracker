@@ -7,6 +7,27 @@ use App\Http\Controllers\TimeTableController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Laravel\Socialite\Facades\Socialite;
+
+// Redirect to Google's OAuth
+Route::get('/auth/google', function () {
+    return Socialite::driver('google')->scopes(['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'])->redirect();
+})->name('google.redirect');
+
+// Handle Google's OAuth Callback
+Route::get('/auth/google/callback', function () {
+    $user = Socialite::driver('google')->stateless()->user();
+
+    // Save the user's access token and refresh token
+    session([
+        'google_access_token' => $user->token,
+        'google_refresh_token' => $user->refreshToken,
+        'google_token_expires_in' => $user->expiresIn,
+    ]);
+
+    return redirect('/dashboard')->with('success', 'Google OAuth successful!');
+});
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -25,7 +46,7 @@ Route::get('/clients_', function () {
     return Inertia::render('client');
 })->middleware(['auth', 'verified'])->name('client');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'google.auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
