@@ -28,6 +28,27 @@ Route::get('/auth/google/callback', function () {
     return redirect('/dashboard')->with('success', 'Google OAuth successful!');
 });
 
+Route::get('/google/refresh-token', function () {
+    $refreshToken = session('google_refresh_token');
+    if (!$refreshToken) {
+        return redirect('/auth/google');
+    }
+
+    $client = new Google_Cl();
+    $client->refreshToken($refreshToken);
+
+    $newAccessToken = $client->getAccessToken();
+
+    // Update the session
+    session([
+        'google_access_token' => $newAccessToken['access_token'],
+        'google_token_expires_in' => $newAccessToken['expires_in'],
+    ]);
+
+    return redirect('/dashboard')->with('success', 'Token refreshed successfully!');
+});
+
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [

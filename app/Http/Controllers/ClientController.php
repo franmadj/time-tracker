@@ -1,12 +1,10 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 use Carbon\Carbon;
-use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +13,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Services\GoogleDocumentApiService;
 
 class ClientController extends Controller
 {
@@ -41,9 +40,9 @@ class ClientController extends Controller
      */
     public function store(StoreClientRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
+        $validated            = $request->validated();
         $validated['user_id'] = Auth()->user()->id;
-        $validated['slug'] = Str::slug($validated['name'], "-");
+        $validated['slug']    = Str::slug($validated['name'], "-");
         Client::create($validated);
         return Redirect::route('client.index');
     }
@@ -54,27 +53,26 @@ class ClientController extends Controller
     public function show(Client $client)
     {
         $projects = $client->projects()->with('times')->orderBy('order', 'ASC');
-        $term = request('term') ?: '';
+        $term     = request('term') ?: '';
         if (strlen($term)) {
             $projects = $projects->where('name', 'like', '%' . $term . '%');
         }
 
         $projects = $projects->get()->map(function (Model $project, int $key) {
             $project->time_started = false;
-            if ($project->times->count() && !$project->times->last()->ended_at) {
+            if ($project->times->count() && ! $project->times->last()->ended_at) {
                 $project->time_started = (new Carbon($project->times->last()->started_at))->addHours(2)->toDateTimeString();
-                $project->time_id = $project->times->last()->id;
+                $project->time_id      = $project->times->last()->id;
             }
             return $project;
         });
 
         return Inertia::render('Dashboard/Projects', [
-            'projects' => $projects,
-            'client' => $client,
+            'projects'   => $projects,
+            'client'     => $client,
             'searchTerm' => $term,
         ]);
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -101,8 +99,25 @@ class ClientController extends Controller
      */
     public function updateNotes(Client $client, Request $request)
     {
-        $client->update($request->notes);
-        return response(['success' => true]);
+        $documentId = $request->input('document_id');
+        $content = $request->input('content');
+
+        if (!$documentId || !$content) {
+            return response()->json(['error' => 'Document ID and content are required'], 400);
+        }
+        try {
+            $accessToken = session('google_access_token');
+            if (!$accessToken) {
+                return redirect()->route('google.redirect');
+            }
+
+            $googleDocsService = new GoogleDocumentApiService($accessToken);
+            $response = $googleDocsService->updateDocument($documentId, $content);
+
+            return response(['success' => true, 'response' => $response]);
+        } catch (\Exception $e) {
+            return response(['error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -123,7 +138,7 @@ class ClientController extends Controller
      */
     public function update(UpdateClientRequest $request, Client $client): RedirectResponse
     {
-        $validated = $request->validated();
+        $validated         = $request->validated();
         $validated['slug'] = Str::slug($validated['name'], "-");
         $client->update($validated);
         return Redirect::to('/client');

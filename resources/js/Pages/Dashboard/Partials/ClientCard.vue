@@ -358,7 +358,8 @@ const editorContent = ref('hello'); // To store and manage the content
 const editNotesModal = () => {
 
     formNotes = useForm({
-        notes: editorContent.value
+        content: editorContent.value,
+        document_id: props.client.name,
     });
     
     confirmingNotes.value = true;
@@ -387,7 +388,7 @@ const saveNotes = () => {
   if (quillInstance) {
     formNotes.transform((data) => ({
         ...data,
-        name:quillInstance.root.innerHTML
+        content:quillInstance.root.innerHTML
     })).patch(route("client.updateNotes", props.client.id), {
         preserveScroll: true,
         onSuccess: () => {
