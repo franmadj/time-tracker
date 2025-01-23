@@ -280,7 +280,7 @@ const formDelete = useForm({
 });
 
 onMounted(() => {
-    console.log("onmounted");
+    editorContent.value=props.client.notes;
 });
 
 /************EDIT MODAL***********/
@@ -328,7 +328,6 @@ const deleteModal = () => {
     nextTick(() => deleteNameInput.value.focus());
 };
 const deleteClient = () => {
-    console.log(props.client.name, formDelete.name);
     if (props.client.name != formDelete.name) {
         formDelete.setError("name", "Name is incorrect.");
         return;
@@ -356,10 +355,10 @@ const confirmingNotes = ref(false);
 let quillInstance = null; // To store the Quill instance
 const editorContent = ref('hello'); // To store and manage the content
 const editNotesModal = () => {
+    
 
     formNotes = useForm({
         content: editorContent.value,
-        document_id: props.client.name,
     });
     
     confirmingNotes.value = true;
@@ -386,19 +385,24 @@ const editNotesModal = () => {
 // Function to capture the editor's value
 const saveNotes = () => {
   if (quillInstance) {
-    formNotes.transform((data) => ({
-        ...data,
-        content:quillInstance.root.innerHTML
-    })).patch(route("client.updateNotes", props.client.id), {
-        preserveScroll: true,
-        onSuccess: () => {
-            closeNotes();
-        },
-        onError: () => {},
-        onFinish: () => {},
-    });
-    //editorContent.value = quillInstance.root.innerHTML; // Capture the current editor content
-    console.log('Editor Content:', editorContent.value);
+    editorContent.value=quillInstance.root.innerHTML;
+
+    axios
+        .patch(route("client.updateNotes", props.client.id), {
+            content:quillInstance.root.innerHTML
+        })
+        .then((res) => {
+            if (res.data.success) {
+                closeNotesModal();
+            } else {
+                //toaster.error(`Error`);
+            }
+        })
+        .catch(function (error) {
+            //toaster.error(error);
+        });
+
+
   }
 };
 const updateClient_ = () => {
@@ -436,7 +440,6 @@ const setPrioroty = (newPrioroty) => {
 };
 
 const updateColor = (eventData) => {
-    console.log(eventData.cssColor);
     color.value = eventData.cssColor;
 };
 </script>

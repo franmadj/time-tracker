@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Services\GoogleDocumentApiService;
 
 class ClientController extends Controller
 {
@@ -99,25 +98,9 @@ class ClientController extends Controller
      */
     public function updateNotes(Client $client, Request $request)
     {
-        $documentId = $request->input('document_id');
-        $content = $request->input('content');
-
-        if (!$documentId || !$content) {
-            return response()->json(['error' => 'Document ID and content are required'], 400);
-        }
-        try {
-            $accessToken = session('google_access_token');
-            if (!$accessToken) {
-                return redirect()->route('google.redirect');
-            }
-
-            $googleDocsService = new GoogleDocumentApiService($accessToken);
-            $response = $googleDocsService->updateDocument($documentId, $content);
-
-            return response(['success' => true, 'response' => $response]);
-        } catch (\Exception $e) {
-            return response(['error' => $e->getMessage()], 500);
-        }
+        $client->notes = $request->content;
+        $client->save();
+        return response(['success' => true]);
     }
 
     /**
