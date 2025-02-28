@@ -19,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'google.auth' => \App\Http\Middleware\EnsureGoogleAuthenticated::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'http://time-tracker.franciscomauridev.es/login',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
