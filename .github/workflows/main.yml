@@ -22,6 +22,13 @@ jobs:
         eval "$(ssh-agent -s)"
         echo "${{ secrets.SSH_PASSPHRASE }}" | SSH_ASKPASS=/bin/cat ssh-add ~/.ssh/id_rsa
         ssh-add -l  # List added keys for debugging
+    - name: Verify SSH key is added
+      run: ssh-add -l
+    - name: Test SSH authentication
+      run: |
+        eval "$(ssh-agent -s)"
+        ssh-add ~/.ssh/id_rsa <<< "${{ secrets.SSH_PASSPHRASE }}"
+        ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "exit"
     - name: Debug SSH connection
       run: ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "exit"
     - name: Connect and pull
