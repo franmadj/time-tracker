@@ -19,8 +19,11 @@ jobs:
         install -m 600 -D /dev/null ~/.ssh/id_rsa
         echo -e "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-add ~/.ssh/id_rsa
-        ssh-add -l  # Check if the key was added successfully
+        cat ~/.ssh/id_rsa | head -5  # Print first few lines to check format
+        # Add key to ssh-agent
+        ssh-add ~/.ssh/id_rsa || cat ~/.ssh/id_rsa | ssh-add -
+        # List added keys
+        ssh-add -l
     - name: Debug SSH Key Content
       run: |
         echo "${{ secrets.SSH_PRIVATE_KEY }}" | cat -A
