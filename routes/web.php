@@ -36,7 +36,6 @@ Route::get('/google/refresh-token', function () {
 
     $client = new Google_Cl();
     $client->refreshToken($refreshToken);
-
     $newAccessToken = $client->getAccessToken();
 
     // Update the session
