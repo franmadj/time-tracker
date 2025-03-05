@@ -48,8 +48,6 @@ Route::get('/google/refresh-token', function () {
     return redirect('/dashboard')->with('success', 'Token refreshed successfully!');
 });
 
-
-
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
