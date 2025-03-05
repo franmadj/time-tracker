@@ -17,7 +17,6 @@ Route::get('/auth/google', function () {
 // Handle Google's OAuth Callback
 Route::get('/auth/google/callback', function () {
     $user = Socialite::driver('google')->stateless()->user();
-
     // Save the user's access token and refresh token
     session([
         'google_access_token' => $user->token,
