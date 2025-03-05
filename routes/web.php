@@ -104,8 +104,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('stop-time/{timeTable}', [TimeTableController::class, 'stopTime'])->name('stopTime');
         Route::delete('{timeTable}', [TimeTableController::class, 'destroy'])->name('destroy');
     });
-
-    
 });
 
 require __DIR__.'/auth.php';
