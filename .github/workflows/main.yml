@@ -21,7 +21,9 @@ jobs:
       run: |
         eval "$(ssh-agent -s)"  # Start ssh-agent
         ssh-add -l  # Check if agent is running
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -  > /dev/null 2>&1 || cat <<< "${{ secrets.SSH_PRIVATE_KEY }}" | ssh-add -
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa  # Set correct permissions
+        ssh-add ~/.ssh/id_rsa  # Add key to agent
         ssh-add -l  # List keys again to confirm
     - name: Verify SSH key is added
       run: ssh-add -l
