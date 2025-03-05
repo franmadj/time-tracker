@@ -17,9 +17,10 @@ jobs:
         install -m 600 -D /dev/null ~/.ssh/id_rsa
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
-    - name: Debug SSH Key
+    - name: Debug SSH Key Content
       run: |
-        cat ~/.ssh/id_rsa | head -5  # Show first few lines of the key
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" | cat -A
+
     - name: Start SSH agent and add key
       run: |
         eval "$(ssh-agent -s)"  # Start ssh-agent
