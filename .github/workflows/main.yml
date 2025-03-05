@@ -14,6 +14,8 @@ jobs:
       # check this thread to understand why its needed:
       # https://stackoverflow.com/a/70447517
       run: |
+        eval "$(ssh-agent -s)"  # Start the SSH agent
+        ssh-add -l  # Check if agent is running
         install -m 600 -D /dev/null ~/.ssh/id_rsa
         echo -e "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
