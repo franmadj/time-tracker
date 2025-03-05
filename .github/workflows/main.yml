@@ -19,9 +19,10 @@ jobs:
         ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
     - name: Start SSH agent and add key
       run: |
-        eval "$(ssh-agent -s)"
-        echo "${{ secrets.SSH_PASSPHRASE }}" | SSH_ASKPASS=/bin/cat ssh-add ~/.ssh/id_rsa
-        ssh-add -l  # List added keys for debugging
+        eval "$(ssh-agent -s)"  # Start ssh-agent
+        ssh-add -l  # Check if agent is running
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -  # Add key
+        ssh-add -l  # List keys again to confirm
     - name: Verify SSH key is added
       run: ssh-add -l
     - name: Test SSH authentication
