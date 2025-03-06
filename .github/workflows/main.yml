@@ -22,6 +22,10 @@ jobs:
       run: |
         eval "$(ssh-agent -s)"
         echo "${{ secrets.SSH_PASSPHRASE }}" | ssh-add ~/.ssh/id_rsa
+    - name: Debug SSH Connection
+      run: ssh -v ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "exit"
+    - name: Verify SSH Key
+      run: ssh-add -l
     - name: connect and pull
       run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull && exit"
     - name: cleanup
