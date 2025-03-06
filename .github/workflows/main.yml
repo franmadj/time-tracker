@@ -21,7 +21,7 @@ jobs:
     - name: Start ssh-agent and Add Key
       run: |
         eval "$(ssh-agent -s)"
-        echo "${{ secrets.SSH_PRIVATE_KEY_PASSPHRASE }}" | ssh-add ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PASSPHRASE }}" | ssh-add ~/.ssh/id_rsa
     - name: connect and pull
       run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull && exit"
     - name: cleanup
