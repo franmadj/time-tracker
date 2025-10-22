@@ -77,7 +77,7 @@
             <div class="mt-6">
                 <InputLabel for="notes" value="notes" class="sr-only" />
                 <textarea id="notes" ref="editNameInput" v-model="form.notes" type="text"
-                    class="mt-1 block w-3/4 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                    class="mt-1 block w-3/4 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-gray-300 bg-gray-800"
                     placeholder="Project Name" @keyup.enter="updateProject"></textarea>
 
                 <InputError :message="form.errors.notes" class="mt-2" />
@@ -85,8 +85,8 @@
             <div class="mt-6">
                 <InputLabel for="hourly_rate" value="hourly_rate" class="sr-only" />
                 <div class="relative w-3/4">
-                    <span class="absolute right-2 top-[9px]">{{ props.client.currency }} / Hour</span>
-                    <TextInput id="hourly_rate" v-model="form.hourly_rate" type="text" class="mt-1 block w-3/4"
+                    <span class="absolute right-2 top-[9px] text-gray-300">{{ props.client.currency }} / Hour</span>
+                    <TextInput id="hourly_rate" v-model="form.hourly_rate" type="text" class="mt-1 block w-3/4 "
                         placeholder="Hourly Rate" @keyup.enter="updateProject" />
                 </div>
                 <InputError :message="form.errors.hourly_rate" class="mt-2" />
@@ -94,7 +94,7 @@
             <div class="mt-6">
                 <InputLabel for="hourly_rate_two" value="hourly rate two" class="sr-only" />
                 <div class="relative w-3/4">
-                    <span class="absolute right-2 top-[9px]">{{ props.client.currency }} / Hour</span>
+                    <span class="absolute right-2 top-[9px] text-gray-300">{{ props.client.currency }} / Hour</span>
                     <TextInput id="hourly_rate_two" v-model="form.hourly_rate_two" type="text" class="mt-1 block w-3/4"
                         placeholder="Second Hourly Rate" @keyup.enter="updateProject" />
                 </div>
@@ -106,7 +106,7 @@
 
                     <TextInput id="extra_time" v-model="form.extra_time" type="text" class="mt-1 block w-32"
                         placeholder="Extra Minutes" @keyup.enter="updateProject" />
-                    <span class="">Minutes / <b>{{ secondsToHours }}</b> Hours</span>
+                    <span class="text-gray-300">Minutes / <b>{{ secondsToHours }}</b> Hours</span>
                 </div>
                 <InputError :message="form.errors.extra_time" class="mt-2" />
             </div>
@@ -150,7 +150,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { nextTick, ref, defineProps, onMounted, computed } from 'vue';
+import { nextTick, ref, onMounted, computed } from 'vue';
 
 const props = defineProps({
     project: {

@@ -4,22 +4,22 @@
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Projects</h2>
+            <h2 class="font-semibold text-xl text-gray-200 leading-tight">Projects</h2>
         </template>
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
 
 
 
                     <div class="flex justify-between items-center mb-3 gap-2">
                         <div class="flex gap-3 grow">
                             <Link :href="route('client.index')"
-                                class="grow-0 inline-flex items-center w-fit px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                                class="grow-0 inline-flex items-center w-fit px-4 py-2 bg-gray-700 border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                             << Back</Link>
                                 <button type="button" :disabled="calculateDisabled" @click="calculate"
-                                    class="grow-0 inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                                    class="grow-0 inline-flex items-center px-4 py-2 bg-gray-700 border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                                     Calculate</button>
                                 <InputLabel for="name" value="name" class="sr-only" />
                                 <TextInput id="name" ref="searchInput" @keyup="searchProject" v-model="searchTerm"
@@ -43,13 +43,13 @@
                             @click="viewProject(project.id)" @dragstart="handleDragStart(index)"
                             v-show="project.show && !project.deleted" @dragover="handleDragOver"
                             @drop="handleDrop(index)" :style="'order:' + project.order"
-                            class="p-3 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-[360px] rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
+                            class="p-3 hover:opacity-90 text-white bg-blue-900 min-w-[360px] min-h-[220px] w-[360px] rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
                             <ProjectCard :project="project" :client="client" @delete:project="deleteProject"
                                 @update:project="updateProject" :index="index" />
                         </div>
 
                         <div
-                            class="p-4 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded flex justify-center items-center shadow-2xl order-[999999]">
+                            class="p-4 text-white bg-blue-800 min-w-[360px] min-h-[220px] w-fit rounded flex justify-center items-center shadow-2xl order-[999999]">
                             <svg class="cursor-pointer w-20 h-20 opacity-50" @click="newProject"
                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                                 <path
@@ -60,7 +60,7 @@
 
                     <Modal :show="creatingNewProject" @close="closeModal">
                         <div class="p-6">
-                            <h2 class="text-lg font-medium text-gray-900">
+                            <h2 class="text-lg font-medium text-gray-200">
                                 Create new Project
                             </h2>
                             <div class="mt-6">
@@ -73,7 +73,7 @@
                             <div class="mt-6">
                                 <InputLabel for="notes" value="notes" class="sr-only" />
                                 <textarea id="notes" v-model="form.notes" type="text"
-                                    class="mt-1 block w-3/4 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    class="mt-1 block w-3/4 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-gray-300 bg-gray-800"
                                     placeholder="Notes" @keyup.enter="storeProject"></textarea>
 
                                 <InputError :message="form.errors.notes" class="mt-2" />
@@ -82,9 +82,9 @@
                             <div class="mt-6">
                                 <InputLabel for="hourly_rate" value="hourly_rate" class="sr-only" />
                                 <div class="relative w-3/4">
-                                    <span class="absolute right-2 top-[9px]">{{ props.client.currency }} / Hour</span>
+                                    <span class="absolute right-2 top-[9px] text-gray-300">{{ props.client.currency }} / Hour</span>
                                     <TextInput id="hourly_rate" v-model="form.hourly_rate" type="text"
-                                        class="mt-1 block w-3/4" placeholder="Hourly Rate"
+                                        class="mt-1 block w-3/4 text-gray-300 bg-gray-800" placeholder="Hourly Rate"
                                         @keyup.enter="storeProject" />
                                 </div>
                                 <InputError :message="form.errors.hourly_rate" class="mt-2" />
@@ -92,9 +92,9 @@
                             <div class="mt-6">
                                 <InputLabel for="hourly_rate_two" value="hourly rate two" class="sr-only" />
                                 <div class="relative w-3/4">
-                                    <span class="absolute right-2 top-[9px]">{{ props.client.currency }} / Hour</span>
+                                    <span class="absolute right-2 top-[9px] text-gray-300">{{ props.client.currency }} / Hour</span>
                                     <TextInput id="hourly_rate_two" v-model="form.hourly_rate_two" type="text"
-                                        class="mt-1 block w-3/4" placeholder="Second Hourly Rate"
+                                        class="mt-1 block w-3/4 text-gray-300 bg-gray-800" placeholder="Second Hourly Rate"
                                         @keyup.enter="storeProject" />
                                 </div>
                                 <InputError :message="form.errors.hourly_rate_two" class="mt-2" />
@@ -112,7 +112,7 @@
                     <Modal :show="calculating" @close="closeCalculateModal" maxWidth="screenlg">
                         <div class="p-6">
                             <div class="flex justify-between items-center gap-2 mb-5">
-                                <h2 class="text-xl font-bold text-gray-900">
+                                <h2 class="text-xl font-bold text-gray-200">
                                     Reports
                                 </h2>
                                 
@@ -120,52 +120,58 @@
                                 <div class="flex gap-1 justify-between items-center">
                                     <button type="button" :disabled="tableReportDisabled"
                                         @click="tableReportDisabled = true; textReportDisabled = false;"
-                                        class="grow-0 inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                                        class="grow-0 inline-flex items-center px-4 py-2 bg-gray-700 border border-gray-600 rounded-md font-semibold text-xs text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                                         Table</button>
                                     <button type="button" :disabled="textReportDisabled"
                                         @click="tableReportDisabled = false; textReportDisabled = true;"
-                                        class="grow-0 inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                                        class="grow-0 inline-flex items-center px-4 py-2 bg-gray-700 border border-gray-600 rounded-md font-semibold text-xs text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                                         Text</button>
 
                                 </div>
                             </div>
                             <table class="w-full" v-show="tableReportDisabled">
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Time</th>
-                                    <th>Earnings</th>
-                                </tr>
-                                <tr v-for="(selectedProject, index) in selectedProjects" :key="index">
-                                    <td
-                                        class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">
-                                        {{ selectedProject.name }}
-                                    </td>
-                                    <td
-                                        class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">
-                                        {{ helpers.makeTimeClock(selectedProject.total_time) }}</td>
-                                    <td
-                                        class="text-center px-5 py-1 text-lg font-bold bg-blue-200 border border-b-white">
-                                        {{ calculateEarnings(selectedProject) }} {{ client.currency }}
-                                        <span v-show="calculateEarnings(selectedProject, true) > 0"> / {{
-                                            calculateEarnings(selectedProject, true) }} {{ client.currency }}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td
-                                        class="text-center px-5 py-1 text-lg font-bold bg-gray-200 border border-b-white">
-                                        Totals
-                                    </td>
-                                    <td
-                                        class="text-center px-5 py-1 text-lg font-bold bg-gray-200 border border-b-white">
-                                        {{ totalTimeSum }}</td>
-                                    <td
-                                        class="text-center px-5 py-1 text-lg font-bold bg-gray-200 border border-b-white">
-                                        {{ totalEarningsSum }}
-                                        <span v-show="totalEarningsSumTwo > 0"> / {{ totalEarningsSumTwo }} {{
-                                            client.currency
-                                        }}</span>
-                                    </td>
-                                </tr>
+                                <thead>
+                                    <tr>
+                                        <th class="text-center px-5 py-2 text-lg font-bold text-gray-200 bg-gray-700 border border-gray-600">Name</th>
+                                        <th class="text-center px-5 py-2 text-lg font-bold text-gray-200 bg-gray-700 border border-gray-600">Time</th>
+                                        <th class="text-center px-5 py-2 text-lg font-bold text-gray-200 bg-gray-700 border border-gray-600">Earnings</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(selectedProject, index) in selectedProjects" :key="index">
+                                        <td
+                                            class="text-center px-5 py-1 text-lg font-bold bg-blue-800 text-white border border-gray-600">
+                                            {{ selectedProject.name }}
+                                        </td>
+                                        <td
+                                            class="text-center px-5 py-1 text-lg font-bold bg-blue-800 text-white border border-gray-600">
+                                            {{ helpers.makeTimeClock(selectedProject.total_time) }}</td>
+                                        <td
+                                            class="text-center px-5 py-1 text-lg font-bold bg-blue-800 text-white border border-gray-600">
+                                            {{ calculateEarnings(selectedProject) }} {{ client.currency }}
+                                            <span v-show="calculateEarnings(selectedProject, true) > 0"> / {{
+                                                calculateEarnings(selectedProject, true) }} {{ client.currency }}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td
+                                            class="text-center px-5 py-1 text-lg font-bold bg-gray-600 text-white border border-gray-600">
+                                            Totals
+                                        </td>
+                                        <td
+                                            class="text-center px-5 py-1 text-lg font-bold bg-gray-600 text-white border border-gray-600">
+                                            {{ totalTimeSum }}</td>
+                                        <td
+                                            class="text-center px-5 py-1 text-lg font-bold bg-gray-600 text-white border border-gray-600">
+                                            {{ totalEarningsSum }}
+                                            <span v-show="totalEarningsSumTwo > 0"> / {{ totalEarningsSumTwo }} {{
+                                                client.currency
+                                            }}</span>
+                                        </td>
+                                    </tr>
+                                </tfoot>
 
                             </table>
                             <div v-show="textReportDisabled">
@@ -200,7 +206,7 @@ import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import ProjectCard from './Partials/ProjectCard.vue';
 import helpers from '../../Composables/helpers'
-import { nextTick, ref, defineProps, onMounted, computed } from 'vue';
+import { nextTick, ref, onMounted, computed } from 'vue';
 
 const creatingNewProject = ref(false);
 const projectNameInput = ref(null);

@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ShortcutController;
 use App\Http\Controllers\TimeTableController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,7 @@ Route::get('/auth/google', function () {
 // Handle Google's OAuth Callback
 Route::get('/auth/google/callback', function () {
     $user = Socialite::driver('google')->stateless()->user();
+
     // Save the user's access token and refresh token
     session([
         'google_access_token' => $user->token,
@@ -35,6 +37,7 @@ Route::get('/google/refresh-token', function () {
 
     $client = new Google_Cl();
     $client->refreshToken($refreshToken);
+
     $newAccessToken = $client->getAccessToken();
 
     // Update the session
@@ -45,6 +48,8 @@ Route::get('/google/refresh-token', function () {
 
     return redirect('/dashboard')->with('success', 'Token refreshed successfully!');
 });
+
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -100,6 +105,18 @@ Route::middleware(['auth'])->group(function () {
         Route::post('stop-time/{timeTable}', [TimeTableController::class, 'stopTime'])->name('stopTime');
         Route::delete('{timeTable}', [TimeTableController::class, 'destroy'])->name('destroy');
     });
+
+    Route::group([
+        'prefix' => 'shortcuts',
+        'as' => 'shortcuts.'], function () {
+        Route::get('/', [ShortcutController::class, 'index'])->name('index');
+        Route::post('/', [ShortcutController::class, 'store'])->name('store');
+        Route::put('{shortcut}', [ShortcutController::class, 'update'])->name('update');
+        Route::delete('{shortcut}', [ShortcutController::class, 'destroy'])->name('destroy');
+        Route::patch('/order', [ShortcutController::class, 'updateOrder'])->name('order');
+    });
+
+    
 });
 
 require __DIR__.'/auth.php';

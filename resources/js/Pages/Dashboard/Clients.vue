@@ -1,26 +1,26 @@
 <template>
 
-    <Head title="Dashboard" />
+ <Head title="Clients" />
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Clients</h2>
+            <h2 class="font-semibold text-xl text-gray-200 leading-tight">Clients</h2>
         </template>
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex flex-wrap justify-between gap-5">
+                <div class="bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 flex flex-wrap justify-between gap-5">
 
                     <div v-for="(client, index) of clientList" :key="index" :draggable="true"
                         @click="viewClient(client.slug)" @dragstart="handleDragStart(index)" @dragover="handleDragOver"
                         @drop="handleDrop(index)"
-                        class="p-4 pl-9 pt-9 hover:opacity-90 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
+                        class="p-4 pl-9 pt-9 hover:opacity-90 text-white bg-blue-900 min-w-[360px] min-h-[220px] w-fit rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer">
 
                         <ClientCard :client="client" />
                     </div>
 
                     <div
-                        class="p-4 text-white bg-blue-500 min-w-[360px] min-h-[220px] w-fit rounded flex justify-center items-center shadow-2xl">
+                        class="p-4 text-white bg-blue-800 min-w-[360px] min-h-[220px] w-fit rounded flex justify-center items-center shadow-2xl">
                         <svg class="cursor-pointer w-20 h-20 opacity-50" @click="newClient"
                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                             <path
@@ -30,7 +30,7 @@
 
                     <Modal :show="creatingNewClient" @close="closeModal">
                         <div class="p-6">
-                            <h2 class="text-lg font-medium text-gray-900">
+                            <h2 class="text-lg font-medium text-gray-200">
                                 Create new client
                             </h2>
                             <div class="mt-6">
@@ -43,7 +43,7 @@
                             <div class="mt-6">
                                 <InputLabel for="currency" value="currency" class="sr-only" />
                                 <select
-                                    class="mt-1 block w-3/4 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    class="mt-1 block w-3/4 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm bg-gray-800 text-gray-200"
                                     v-model="form.currency">
                                     <option value="€">€</option>
                                     <option value="$">$</option>
@@ -104,7 +104,7 @@ import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { ColorPicker } from 'vue-accessible-color-picker'
 import ClientCard from './Partials/ClientCard.vue';
-import { nextTick, ref, defineProps, computed } from 'vue';
+import { nextTick, ref, computed } from 'vue';
 
 const creatingNewClient = ref(false);
 const clientNameInput = ref(null);
