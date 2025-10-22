@@ -1,6 +1,6 @@
 <template>
     <div
-        class="p-4 text-white min-w-[280px] min-h-[160px] w-fit rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer hover:opacity-90 transition-opacity"
+        class="p-4 text-white w-[280px] h-[160px] rounded relative overflow-hidden shadow-xl border border-slate-400 cursor-pointer hover:opacity-90 transition-opacity flex flex-col"
         :style="{ backgroundColor: shortcut.color }"
         @click="openLink"
     >
@@ -25,19 +25,21 @@
         </svg>
 
         <!-- Icon -->
-        <div class="mb-4">
+        <div class="flex-shrink-0 mb-3">
             <div 
                 v-html="iconSvg" 
-                class="w-12 h-12 text-white opacity-90"
+                class="w-10 h-10 text-white opacity-90"
             ></div>
         </div>
 
         <!-- Content -->
-        <div class="space-y-2">
-            <h3 class="text-lg font-bold text-white truncate">
+        <div class="flex-1 min-h-0 space-y-1 pb-6">
+            <h3 class="text-base font-bold text-white leading-tight overflow-hidden" 
+                style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
                 {{ shortcut.name }}
             </h3>
-            <p class="text-sm text-white/80 truncate">
+            <p class="text-xs text-white/70 leading-tight break-all overflow-hidden" 
+               style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
                 {{ shortcut.link }}
             </p>
         </div>
