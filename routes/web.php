@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ShortcutController;
 use App\Http\Controllers\TimeTableController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -103,6 +104,16 @@ Route::middleware(['auth'])->group(function () {
         'as' => 'timeTable.'], function () {
         Route::post('stop-time/{timeTable}', [TimeTableController::class, 'stopTime'])->name('stopTime');
         Route::delete('{timeTable}', [TimeTableController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::group([
+        'prefix' => 'shortcuts',
+        'as' => 'shortcuts.'], function () {
+        Route::get('/', [ShortcutController::class, 'index'])->name('index');
+        Route::post('/', [ShortcutController::class, 'store'])->name('store');
+        Route::put('{shortcut}', [ShortcutController::class, 'update'])->name('update');
+        Route::delete('{shortcut}', [ShortcutController::class, 'destroy'])->name('destroy');
+        Route::patch('/order', [ShortcutController::class, 'updateOrder'])->name('order');
     });
 
     
