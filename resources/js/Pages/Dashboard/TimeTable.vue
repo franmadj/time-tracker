@@ -77,7 +77,7 @@ import { Head, useForm, Link  } from '@inertiajs/vue3';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import Modal from '@/Components/Modal.vue';
-import { nextTick, ref, defineProps, onMounted } from 'vue';
+import { nextTick, ref, onMounted } from 'vue';
 
 const totalTimeDisplay = ref(false);
 

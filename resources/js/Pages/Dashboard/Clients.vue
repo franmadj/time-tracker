@@ -1,6 +1,6 @@
 <template>
 
-    <Head title="Dashboard" />
+ <Head title="Clients" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -104,7 +104,7 @@ import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { ColorPicker } from 'vue-accessible-color-picker'
 import ClientCard from './Partials/ClientCard.vue';
-import { nextTick, ref, defineProps, computed } from 'vue';
+import { nextTick, ref, computed } from 'vue';
 
 const creatingNewClient = ref(false);
 const clientNameInput = ref(null);

@@ -200,7 +200,7 @@ import Modal from '@/Components/Modal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import ProjectCard from './Partials/ProjectCard.vue';
 import helpers from '../../Composables/helpers'
-import { nextTick, ref, defineProps, onMounted, computed } from 'vue';
+import { nextTick, ref, onMounted, computed } from 'vue';
 
 const creatingNewProject = ref(false);
 const projectNameInput = ref(null);

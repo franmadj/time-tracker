@@ -259,7 +259,7 @@ import TextInput from "@/Components/TextInput.vue";
 import Quill from "quill";
 import { ColorPicker } from "vue-accessible-color-picker";
 import helpers from "../../../Composables/helpers";
-import { nextTick, ref, defineProps, onMounted } from "vue";
+import { nextTick, ref, onMounted } from "vue";
 import 'quill/dist/quill.snow.css'; // Import Quill's styles
 
 const color = ref("#ccc");
