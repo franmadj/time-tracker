@@ -3,22 +3,22 @@
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Shortcuts</h2>
+            <h2 class="font-semibold text-xl text-gray-200 leading-tight">Shortcuts</h2>
         </template>
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
                     
                     <!-- Domain Selector -->
                     <div class="mb-6">
-                        <label for="domain-select" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="domain-select" class="block text-sm font-medium text-gray-300 mb-2">
                             Select Domain:
                         </label>
                         <select 
                             id="domain-select" 
                             v-model="selectedDomain"
-                            class="block w-64 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                            class="block w-64 bg-gray-700 border-gray-600 text-gray-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                         >
                             <option v-for="domain in domains" :key="domain.value" :value="domain.value">
                                 {{ domain.label }}
@@ -60,14 +60,14 @@
                     <!-- Create/Edit Modal -->
                     <Modal :show="showModal" @close="closeModal">
                         <div class="p-6">
-                            <h2 class="text-lg font-medium text-gray-900 mb-6">
+                            <h2 class="text-lg font-medium text-gray-200 mb-6">
                                 {{ isEditing ? 'Edit Shortcut' : 'Create New Shortcut' }}
                             </h2>
                             
                             <div class="space-y-6">
                                 <!-- Name Field -->
                                 <div>
-                                    <InputLabel for="name" value="Name" />
+                                    <InputLabel for="name" value="Name" class="text-gray-300" />
                                     <TextInput 
                                         id="name" 
                                         ref="nameInput" 
@@ -82,7 +82,7 @@
 
                                 <!-- Link Field -->
                                 <div>
-                                    <InputLabel for="link" value="Link" />
+                                    <InputLabel for="link" value="Link" class="text-gray-300" />
                                     <TextInput 
                                         id="link" 
                                         v-model="form.link" 
@@ -96,7 +96,7 @@
 
                                 <!-- Icon Selection -->
                                 <div>
-                                    <InputLabel for="icon" value="Icon" />
+                                    <InputLabel for="icon" value="Icon" class="text-gray-300" />
                                     <div class="mt-2 grid grid-cols-6 gap-3">
                                         <button
                                             v-for="icon in availableIcons"
@@ -104,10 +104,10 @@
                                             type="button"
                                             @click="form.icon = icon.name"
                                             :class="[
-                                                'p-3 rounded-lg border-2 transition-colors',
+                                                'p-3 rounded-lg border-2 transition-colors text-gray-300',
                                                 form.icon === icon.name 
-                                                    ? 'border-blue-500 bg-blue-50' 
-                                                    : 'border-gray-200 hover:border-gray-300'
+                                                    ? 'border-blue-500 bg-blue-900' 
+                                                    : 'border-gray-600 hover:border-gray-500 bg-gray-700'
                                             ]"
                                         >
                                             <div v-html="icon.svg" class="w-6 h-6"></div>
@@ -118,7 +118,7 @@
 
                                 <!-- Color Picker -->
                                 <div>
-                                    <InputLabel for="color" value="Color" />
+                                    <InputLabel for="color" value="Color" class="text-gray-300" />
                                     <ColorPicker 
                                         id="color" 
                                         :visible-formats="['hex']" 
@@ -148,10 +148,10 @@
                     <!-- Delete Confirmation Modal -->
                     <Modal :show="showDeleteModal" @close="closeDeleteModal">
                         <div class="p-6">
-                            <h2 class="text-lg font-medium text-gray-900">
+                            <h2 class="text-lg font-medium text-gray-200">
                                 Are you sure you want to delete this shortcut?
                             </h2>
-                            <p class="mt-1 text-sm text-gray-600">
+                            <p class="mt-1 text-sm text-gray-400">
                                 This action cannot be undone.
                             </p>
 
